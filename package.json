@@ -1,0 +1,19 @@
+{
+  "name": "GLBench.js",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/gl-bench.cjs.js",
+  "module": "dist/gl-bench.esm.js",
+  "browser": "dist/gl-bench.js",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "test": "http-server -c-1 -p 1234"
+  },
+  "author": "munrocket",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^1.19.4",
+    "rollup-plugin-babel": "^4.3.3"
+  }
+}
