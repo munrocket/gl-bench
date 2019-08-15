@@ -1,7 +1,7 @@
 {
-  "name": "GLBench.js",
-  "version": "0.0.1",
-  "description": "",
+  "name": "gl-bench",
+  "version": "0.1.0",
+  "description": "A proper WebGL performance benchmark that uses GPU timers inside",
   "main": "dist/gl-bench.cjs.js",
   "module": "dist/gl-bench.esm.js",
   "browser": "dist/gl-bench.js",
@@ -10,10 +10,22 @@
     "watch": "rollup -c -w",
     "test": "http-server -c-1 -p 1234"
   },
-  "author": "munrocket",
-  "license": "MIT",
   "devDependencies": {
     "rollup": "^1.19.4",
     "rollup-plugin-babel": "^4.3.3"
-  }
+  },
+  "author": "munrocket",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/munrocket/gl-bench.git"
+  },
+  "keywords": [
+    "webgl",
+    "benchmark",
+    "performance",
+    "stats",
+    "stats.js",
+    "fps"
+  ]
 }

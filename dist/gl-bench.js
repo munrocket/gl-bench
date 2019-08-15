@@ -3,51 +3,39 @@ var GlBench = (function () {
 
   class GlBench {
 
-    constructor(canvas) {
+    constructor(uiUpdate, canvas = null) {
+      if (typeof uiUpdate == 'function') {
+        this.uiUpdate = uiUpdate;
+      } else {
+        console.error('Wrong fist parameter in new GlBench()');
+      }
       if (canvas && typeof canvas.getContext == 'function') {
         this.canvas = canvas;
       }
     }
 
     init() {
-      let canvas = this.canvas;
-      if (!canvas) {
+      if (!this.canvas) {
         let cs = document.getElementsByTagName('canvas');
         for (let i = 0; i < cs.length; i++) {
-          if (i == 0 || canvas.width * canvas.height < cs[i].width * cs[i].height) {
-            canvas = cs[i];
+          if (i == 0 || this.canvas.width * this.canvas.height < cs[i].width * cs[i].height) {
+            this.canvas = cs[i];
           }
         }
       }
-      let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (gl) {
-        this.gl = gl;
-        this.ext = gl.getExtension('EXT_disjoint_timer_query');
+      this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+      if (this.gl) {
+        this.ext = this.gl.getExtension('EXT_disjoint_timer_query');
+        this.gl.createQuery = this.ext.createQueryEXT.bind(this.ext);
+        this.gl.deleteQuery = this.ext.deleteQueryEXT.bind(this.ext);
+        this.gl.beginQuery = this.ext.beginQueryEXT.bind(this.ext);
+        this.gl.endQuery = this.ext.endQueryEXT.bind(this.ext);
+        this.gl.getQueryParameter = this.ext.getQueryObjectEXT.bind(this.ext);
+        this.gl.QUERY_RESULT_AVAILABLE = this.ext.QUERY_RESULT_AVAILABLE_EXT;
+        this.gl.QUERY_RESULT = this.ext.QUERY_RESULT_EXT;
       } else {
-        gl = canvas.getContext('webgl2');
-        if (gl) {
-          this.gl = gl;
-          this.ext = gl.getExtension('EXT_disjoint_timer_query_webgl2');
-          if (this.ext) {
-            if (typeof gl.createQuery == 'function' && typeof gl.deleteQuery == 'function'
-                  && typeof gl.beginQuery == 'function' && typeof gl.endQuery == 'function'
-                  && typeof gl.getQueryParameter == 'function') {
-              this.ext.createQueryEXT = gl.createQuery;
-              this.ext.deleteQueryEXT = gl.deleteQuery;
-              this.ext.beginQueryEXT = gl.beginQuery;
-              this.ext.endQueryEXT = gl.endQuery;
-              this.ext.getQueryObjectEXT = gl.getQueryParameter;
-            } else if (this.ext.TIMESTAMP_EXT) {
-              this.ext.createQueryEXT = () => { return {}; };
-              this.ext.deleteQueryEXT = () => null;
-              this.ext.beginQueryEXT = (t, o) => { o.t = this.ext.TIMESTAMP_EXT; };
-              this.ext.endQueryEXT = (t) => { this.query[this.query.length-1].t -= this.ext.TIMESTAMP_EXT; };
-              this.ext.getQueryObjectEXT = (o) => o.t;
-            } else {
-              this.ext = null;
-            }
-          }
-        }
+        this.gl = this.canvas.getContext('webgl2');
+        this.ext = (this.gl) ? this.gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
       }
       this.inited = true;
     }
@@ -74,7 +62,7 @@ var GlBench = (function () {
         if (elapsed > 1) {
           let fps = this.cpuFrame / elapsed;
           while (elapsed > 1) {
-            console.log('CPU: ' + fps);
+            this.uiUpdate(fps);
             elapsed--;
           }
           this.cpuFrame = 0;
@@ -84,30 +72,25 @@ var GlBench = (function () {
     }
 
     updateGPU() {
-      if (!this.debug) {
-        console.log(this.ext);
-        this.debug = true;
-      }
       if (this.gpuFrame === undefined) {
-        this.query = [ this.ext.createQueryEXT() ];
-        this.ext.beginQueryEXT(this.ext.TIME_ELAPSED_EXT, this.query[0]);
+        this.query = [ this.gl.createQuery() ];
+        this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.query[0]);
         this.gpuFrame = 0;
         this.elapsed = 0;
       } else {
-        this.ext.endQueryEXT(this.ext.TIME_ELAPSED_EXT);
+        this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
         if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-          for (var i = this.gpuFrame; i < this.query.length; i++) {          if (this.ext.getQueryObjectEXT(this.query[i], this.ext.QUERY_RESULT_AVAILABLE_EXT)) {
-              this.ext;
-              this.elapsed += this.ext.getQueryObjectEXT(this.query[i], this.ext.QUERY_RESULT_EXT) / 1e9;
+          for (var i = this.gpuFrame; i < this.query.length; i++) {          if (this.gl.getQueryParameter(this.query[i], this.gl.QUERY_RESULT_AVAILABLE)) {
+              this.elapsed += this.gl.getQueryParameter(this.query[i], this.gl.QUERY_RESULT) / 1e9;
               this.gpuFrame++;
               if (this.elapsed > 1) {
                 let fps = this.gpuFrame / this.elapsed;
                 while (this.elapsed > 1) {
-                  console.log('GPU: ' + fps);
+                  this.uiUpdate(fps);
                   this.elapsed--;
                 }
                 for (let i = 0; i < this.gpuFrame; i++) {
-                  this.ext.deleteQueryEXT(this.query[i]);
+                  this.gl.deleteQuery(this.query[i]);
                 }
                 this.query.splice(0, this.gpuFrame);
                 this.gpuFrame = 0;
@@ -116,8 +99,8 @@ var GlBench = (function () {
             }
           }
         }
-        this.query.push(this.ext.createQueryEXT());
-        this.ext.beginQueryEXT(this.ext.TIME_ELAPSED_EXT, this.query[this.query.length-1]);
+        this.query.push(this.gl.createQuery());
+        this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.query[this.query.length-1]);
       }
     }
 
