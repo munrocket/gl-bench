@@ -6,13 +6,14 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Integration Testing</title>
   <link rel="icon" href="data:;base64,=">
-  <style>body {margin: 0;} canvas {display: block;}</style>
+  <style>body {margin: 0; background-color: black;} canvas {display: block; width: 100vw; height: 100vh;}</style>
 </head>
 <body>
   
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/examples/js/WebGL.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
 <script src="../dist/gl-bench.js"></script>
 <script>
@@ -52,9 +53,16 @@
     }
     
     function setupRenderer() {
-      renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+      if ( THREE.WEBGL.isWebGL2Available() === false ) {
+        document.body.appendChild( THREE.WEBGL.getWebGL2ErrorMessage() );
+      }
+      let canvas = document.createElement( 'canvas' );
+      let context = canvas.getContext( 'webgl2' );
+      document.body.appendChild(canvas);
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+      renderer.setPixelRatio(window.devicePixelRatio);
     }
     
     function setupParticles() {
