@@ -22,10 +22,14 @@
   },
   "keywords": [
     "webgl",
+    "webgl2",
     "benchmark",
     "performance",
-    "stats",
+    "timer",
     "stats.js",
-    "fps"
+    "pixi",
+    "three",
+    "babylon",
+    "playcanvas"
   ]
 }
