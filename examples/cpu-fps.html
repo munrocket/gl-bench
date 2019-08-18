@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Integration Testing</title>
   <link rel="icon" href="data:;base64,=">
-  <style>body { margin: 0; background-color: black; } canvas { display: block; width: 100vw; height: 100vh; }</style>
+  <style>body { margin: 0; background-color: black; } canvas { display: block; }</style>
 </head>
 <body>
   <canvas id="c"></canvas>
@@ -20,23 +20,21 @@
   let camera;
   let renderer;
 
-  let stats = new Stats();
-  document.body.appendChild( stats.dom );
-
-  //ui helper
-  let uiHelper = new Stats();
-  let helperPanel = uiHelper.addPanel(new Stats.Panel( 'gFPS', '#bb55ff', '#111' ));
-  uiHelper.dom.style.cssText = 'position:fixed;top:0;left:80px;opacity:0.9;z-index:10000';
-  uiHelper.dom.addEventListener('click', e => { e.stopPropagation() }, true);
-  uiHelper.showPanel(3);
-  document.body.appendChild(uiHelper.dom);
-
-  //initialization
-  let bench = new GlBench( x => helperPanel.update(x, 100) );
-  
   let len = { count: 1000000 };
   var gui = new dat.GUI();
   gui.add(len, 'count', 10000, 5000000).onFinishChange(dumbUpdate);
+
+  // ui helper
+  let ui = new Stats();
+  let panel = ui.addPanel(new Stats.Panel( 'gFPS', '#b5f', '#111' ));
+  ui.dom.style.cssText = 'position:fixed;top:0;left:0;opacity:0.9;z-index:10000';
+  ui.dom.addEventListener('click', e => { e.stopPropagation() }, true);
+  ui.showPanel(3);
+  document.body.appendChild(ui.dom);
+
+  // initialization
+  let bench = new GlBench( x => panel.update(x, 100));
+  bench.initCanvas(document.body);//turn on CPU fallback
   
   function setup() {
     setupScene();
@@ -44,6 +42,18 @@
     setupRenderer();
     setupParticles();
     setupEventListeners();
+  }
+
+  function draw() {
+    // update bench
+    bench.update();
+    ui.update();
+    
+    movePosition(camera.position, 0);
+    camera.lookAt(scene.position);
+    renderer.render(scene, camera);
+    
+    requestAnimationFrame(draw);
   }
   
   function dumbUpdate() {
@@ -122,18 +132,6 @@
     let y = r * Math.sin(φ + phase) * Math.sin(θ + phase);
     let z = r * Math.cos(φ + phase);
     position.set(x, y, z);
-  }
-  
-  function draw() {
-    //update
-    bench.update();
-
-    stats.update();
-    movePosition(camera.position, 0);
-    camera.lookAt(scene.position);
-    renderer.render(scene, camera);
-    
-    requestAnimationFrame(draw);
   }
   
   setup();

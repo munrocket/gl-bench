@@ -1,5 +1,3 @@
-'use strict';
-
 function updateGPU() {
   if (this.gpuFrames === undefined) {
     this.queries = [ this.gl.createQuery() ];
@@ -191,4 +189,4 @@ class GlBench {
   }
 }
 
-module.exports = GlBench;
+export default GlBench;

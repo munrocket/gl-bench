@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Integration Testing</title>
+  <link rel="icon" href="data:;base64,=">
+  <style>body { margin: 0; background-color: black; } canvas { display: block; }</style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+<script src="../dist/gl-bench.js"></script>
+<script>
+  let scene;
+  let camera;
+  let renderer;
+
+  let len = { count: 1000000 };
+  var gui = new dat.GUI();
+  gui.add(len, 'count', 10000, 5000000).onFinishChange(dumbUpdate);
+
+  // ui helper
+  let ui = new Stats();
+  let panel = ui.addPanel(new Stats.Panel( 'gFPS', '#b5f', '#111' ));
+  ui.dom.style.cssText = 'position:fixed;top:0;left:0;opacity:0.9;z-index:10000';
+  ui.dom.addEventListener('click', e => { e.stopPropagation() }, true);
+  ui.showPanel(3);
+  document.body.appendChild(ui.dom);
+
+  // initialization
+  let bench = new GlBench(x => panel.update(x, 100), x => console.log(x));  
+  
+  function setup() {
+    setupScene();
+    setupCamera();
+    setupRenderer();
+    setupParticles();
+    setupEventListeners();
+  }
+    
+  function draw() {
+    //update
+    bench.update();
+
+    bench.begin();
+    movePosition(camera.position, 0);
+    camera.lookAt(scene.position);
+    bench.end();
+    renderer.render(scene, camera);
+    
+    requestAnimationFrame(draw);
+  }
+  
+  function dumbUpdate() {
+    scene.remove(scene.children[0]);
+    setupParticles();
+  }
+  
+  function setupScene() {
+    scene = new THREE.Scene();
+  }
+  
+  function setupCamera() {
+    let res = window.innerWidth / window.innerHeight;
+    camera = new THREE.PerspectiveCamera(70, res, 1, 10000);
+  }
+  
+  function setupRenderer() {
+    let canvas = document.getElementById('c');
+    let context = canvas.getContext( 'webgl2' );
+    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  
+  function setupParticles() {
+    let geometry = new THREE.Geometry();
+    addLorenzVertices(geometry);
+    let color = new THREE.Color(0xbb00ff);
+    for (let i = 0; i < len.count; i++) {
+      geometry.colors.push(color);
+    }
+    let material = new THREE.PointsMaterial({ size: 1, vertexColors: THREE.VertexColors, depthTest: false, opacity: 0.3, sizeAttenuation: false, transparent: true });
+    let mesh = new THREE.Points(geometry, material);
+    scene.add(mesh);
+  }
+  
+  function setupEventListeners() {
+    window.addEventListener("resize", onWindowResize);
+  }
+  
+  function addLorenzVertices(geometry) {
+    let x0 = 0.1;
+    let y0 = 0;
+    let z0 = 0; 
+    let x1, y1, z1;
+    let h = 0.001;
+    let a = 10.0;
+    let b = 28.0;
+    let c = 8.0 / 3.0;
+  
+    for (let i = 0; i < len.count; i++) {
+      x1 = x0 + h * a * (y0 - x0);
+      y1 = y0 + h * (x0 * (b - z0) - y0);
+      z1 = z0 + h * (x0 * y0 - c * z0);
+      x0 = x1;
+      y0 = y1;
+      z0 = z1;
+      let vertex = new THREE.Vector3(
+        x0, 
+        y0, 
+        z0-24);
+      geometry.vertices.push(vertex);
+    }
+  }
+  
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  
+  function movePosition(position, phase) {
+    let r = 40;
+    let θ = new Date() * 0.0005 + 10;
+    let φ = new Date() * 0.0005;    
+    let x = r * Math.sin(φ + phase) * Math.cos(θ + phase);
+    let y = r * Math.sin(φ + phase) * Math.sin(θ + phase);
+    let z = r * Math.cos(φ + phase);
+    position.set(x, y, z);
+  }
+  
+  setup();
+  draw();
+</script>
+</html>

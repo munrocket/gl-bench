@@ -10,33 +10,42 @@ but will idle the graphics pipeline and adversely affect application performance
 
 ### Usage
 ```
-/* define logger */
-function logger(fps) {
-  updateUI(fps); //console.log(fps);
+/* define loggers */
+function fpsLogger(fps) {
+  updateUI(fps);
+}
+function mesureLogger(percent) {
+  console.log(percent);
 }
 
 /* init benchmark */
-let bench = new GlBench(logger);
+let bench = new GlBench(fpsLogger, mesureLogger);
 
-function step(timestamp) {
-  /* update timer */
-  bech.update();
+function draw(now) {
 
-  // ...some monitored code
+  // ...some other code in loop
 
-  requestAnimationFrame(step);
+  bench.begin();
+  // < monitored code >
+  bench.end();
+
+  // ...some other code in loop
+
+  bench.update();
+  requestAnimationFrame(draw);
 }
-requestAnimationFrame(step);
+requestAnimationFrame(draw);
 ```
 
 ### Examples
-- [webgl1 fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
-- [webgl2 fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
+- [webgl fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
+- [other examples](https://munrocket.github.io/gl-bench/examples/)
 
 ### 2do list
 - [x] update()
 - [x] examples
 - [x] webgl2 support
-- [ ] begin/end into query
+- [ ] mesure into loop
+- [ ] tests
 - [ ] deal with GLuint64EXT
 - [ ] own ui
