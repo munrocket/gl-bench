@@ -9,7 +9,7 @@ glFinish() or readPixels() can be used to determine when previous rendering comm
 but will idle the graphics pipeline and adversely affect application performance.
 
 ### Usage
-```
+```javascript
 /* define loggers */
 function fpsLogger(fps) {
   updateUI(fps);
@@ -38,8 +38,8 @@ requestAnimationFrame(draw);
 ```
 
 ### Examples
-- [webgl fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
-- [other examples](https://munrocket.github.io/gl-bench/examples/)
+- [webgl fps](https://munrocket.github.io/gl-bench/docs/fps-webgl1.html)
+- [other examples](https://munrocket.github.io/gl-bench/docs/)
 
 ### 2do list
 - [x] update()

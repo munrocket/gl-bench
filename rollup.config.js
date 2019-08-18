@@ -1,5 +1,5 @@
 import closure from '@ampproject/rollup-plugin-closure-compiler';
-import pkg from './package.json'
+import pkg from './package.json';
 
 export default [
   {
@@ -12,7 +12,7 @@ export default [
   },
   {
     input: 'src/index.js',
-    output: { file: 'gl-bench.min.js', name: 'GlBench', format: 'iife' },
+    output: { file: pkg.minimized, name: 'GlBench', format: 'iife' },
     plugins: [ closure() ]
   }
 ]

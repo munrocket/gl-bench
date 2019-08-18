@@ -46,13 +46,14 @@
     
   function draw() {
     // bench update
-    bench.update();
 
     bench.begin();
     movePosition(camera.position, 0);
     bench.end();
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
+
+    bench.update();
     
     requestAnimationFrame(draw);
   }

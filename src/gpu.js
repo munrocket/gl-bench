@@ -3,19 +3,25 @@ export function updateGPU() {
     this.queries = [ this.gl.createQuery() ];
     this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queries[0]);
     this.gpuFrames = 0;
-    this.nanosec = [];
+    this.nanosecs = [];
     this.duration = 0
   } else {
     this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
 
     if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-      for (let i = this.gpuFrames; i < this.queries.length; i++) {
-        if (!this.gl.getQueryParameter(this.queries[i], this.gl.QUERY_RESULT_AVAILABLE)) {
+      for (let frameId = this.gpuFrames; frameId < this.queries.length; frameId++) {
+        if (!this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT_AVAILABLE)) {
           break;
         }
+
+        if (this.startCounter && this.finishCounter) {
+          //calcCounter.bind(this)(frameId);
+        }
+
         this.gpuFrames++;
-        this.nanosec.push(this.gl.getQueryParameter(this.queries[i], this.gl.QUERY_RESULT));
-        this.duration += this.nanosec[this.nanosec.length-1];
+        const ns = this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT);
+        this.nanosecs.push(ns);
+        this.duration += ns;
         let seconds = this.duration / 1e9;
         if (seconds >= 1) {
           const fps = this.gpuFrames / seconds;
@@ -24,15 +30,16 @@ export function updateGPU() {
             seconds--;
           }
 
-          if (this.startCounter && this.endCounter) {
-            calcCounter.bind(this)(i);
+          if (this.startCounter && this.finishCounter) {
+            //console.log(this.gl.getQuery(this.ext.TIMESTAMP_EXT, this.ext.QUERY_COUNTER_BITS_EXT));
+            //calcCounter.bind(this)(frameId);
           }
 
-          for (let j = 0; j < i; i++) {
+          for (let i = 0; i < frameId + 1; i++) {
             this.gl.deleteQuery(this.queries[i]);
           }
-          this.queries.splice(0, i);
-          this.nanosec.splice(0, i);
+          this.queries.splice(0, frameId + 1);
+          this.nanosecs.splice(0, frameId + 1);
           this.gpuFrames = 0;
           this.duration = 0;
         }
@@ -56,26 +63,35 @@ export function beginGPU() {
 
 export function endGPU() {
   this.ext.queryCounterEXT(this.finishCounter[this.finishCounter.length-1], this.ext.TIMESTAMP_EXT);
+  //calcCounter.bind(this)(this.gpuFrames);
 }
 
-function calcCounter(index) {
+function calcCounter(frameId) {
   let counterDuration = 0;
   let framesDuration = 0;
-  for (let i = 0, len = Math.min(this.startCounter.length, this.finishCounter.length, this.nanosec.length); i < len; i++) {
-    const startFree = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-    const finishFree = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-    if (startFree && finishFree) {
-      const startResult = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT);
-      const finishResult = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT);
-      counterDuration += (finishResult - startResult) / 1e9;
-      framesDuration += this.nanosec[i];
+  if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
+    for (let i = 0, len = Math.min(this.startCounter.length, this.finishCounter.length); i < len; i++) {
+      const startAvailable = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
+      const finishAvailable = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
+      console.log(startAvailable, finishAvailable);
+      if (startAvailable && finishAvailable) {
+        const startResult = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT);
+        const finishResult = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT);
+        counterDuration += (finishResult - startResult) / 1e9;
+        framesDuration += this.nanosecs[i];
+      }
     }
   }
-  this.counterLogger(counterDuration / framesDuration);
-  for (let i = 0; i < index; i++) {
-    this.gl.deleteQuery(this.startCounter[index]);
-    this.gl.deleteQuery(this.finishCounter[index]);
+  if (framesDuration != 0) {
+    this.counterLogger(counterDuration / framesDuration);
   }
-  this.startCounter.splice(0, index);
-  this.finishCounter.splice(0, index);
+
+  if ( /* all bugs are fixed */  false ) {
+    for (let i = 0; i < frameId + 1; i++) {
+      this.gl.deleteQuery(this.startCounter[i]);
+      this.gl.deleteQuery(this.finishCounter[i]);
+    }
+    this.startCounter.splice(0, frameId + 1);
+    this.finishCounter.splice(0, frameId + 1);
+  }
 }
