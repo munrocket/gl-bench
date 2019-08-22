@@ -3,16 +3,15 @@ import pkg from './package.json';
 
 export default [
   {
-    input: 'src/index.js',
+    input: 'src/index',
     output: [
-      { file: pkg.main, format: 'cjs' },
-      { file: pkg.module, name: 'GlBench', format: 'esm' },
-      { file: pkg.browser, name: 'GlBench', format: 'iife' }
+      { file: pkg.browser, name: 'GlBench', format: 'iife' },
+      { file: pkg.module, name: 'GlBench', format: 'module' },
     ]
   },
   {
-    input: 'src/index.js',
-    output: { file: pkg.minimized, name: 'GlBench', format: 'iife' },
+    input: 'src/index',
+    output: { file: pkg.main, name: 'GlBench', format: 'iife' },
     plugins: [ closure() ]
   }
 ]

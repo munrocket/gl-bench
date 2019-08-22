@@ -1,13 +1,21 @@
-import { updateGPU, beginGPU, endGPU } from './gpu';
-import { updateCPU, beginCPU, endCPU } from './cpu';
+import GPU from './gpu';
+import CPU from './cpu';
 
+/**
+* WebGL Benchmark Class
+* @param { (x: string) => void } fpsLogger
+* @param { (x: string) => void } counterLogger 
+*/
 export default class GlBench {
-
   constructor(fpsLogger, counterLogger) {
-    this.fpsLogger = (typeof fpsLogger == 'function') ? fpsLogger : null;
-    this.counterLogger = (typeof fpsLogger == 'function') ? counterLogger : null;
+    this.fpsLogger = fpsLogger;
+    this.counterLogger = counterLogger;
   }
 
+  /**
+   * Explicit canvas initialization
+   * @param { ?HTMLCanvasElement } canvas 
+   */
   initCanvas(canvas) {
     if (!canvas) {
       let cs = document.getElementsByTagName('canvas');
@@ -18,53 +26,66 @@ export default class GlBench {
       }
     }
     if (canvas && typeof canvas.getContext == 'function') {
-      this.gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (this.gl) {
-        this.ext = this.gl.getExtension('EXT_disjoint_timer_query');
-        this.gl.createQuery = this.ext.createQueryEXT.bind(this.ext);
-        this.gl.deleteQuery = this.ext.deleteQueryEXT.bind(this.ext);
-        this.gl.beginQuery = this.ext.beginQueryEXT.bind(this.ext);
-        this.gl.endQuery = this.ext.endQueryEXT.bind(this.ext);
-        this.gl.getQueryParameter = this.ext.getQueryObjectEXT.bind(this.ext);
-        this.gl.QUERY_RESULT_AVAILABLE = this.ext.QUERY_RESULT_AVAILABLE_EXT;
-        this.gl.QUERY_RESULT = this.ext.QUERY_RESULT_EXT;
+      let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        let ext = gl.getExtension('EXT_disjoint_timer_query');
+        if (ext) {
+          gl.createQuery = ext.createQueryEXT.bind(ext);
+          gl.deleteQuery = ext.deleteQueryEXT.bind(ext);
+          gl.beginQuery = ext.beginQueryEXT.bind(ext);
+          gl.endQuery = ext.endQueryEXT.bind(ext);
+          gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
+          gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
+          gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
+          this.gpu = new GPU(gl, ext);
+        }
       } else {
-        this.gl = canvas.getContext('webgl2');
-        this.ext = (this.gl) ? this.gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
+        gl = canvas.getContext('webgl2');
+        let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
+        if (ext) {
+          this.gpu = new GPU(gl, ext);
+        }
       }
-    } else {
-      console.log('CPU fallback');
     }
-    this.inited = true;
+    this.cpu = new CPU();
   }
 
+  /**
+   * Update fps
+   */
   update() {
-    if (this.ext) {
-      updateGPU.bind(this)();
-    } else if (this.inited) {
-      updateCPU.bind(this)();
+    if (this.gpu) {
+      this.gpu.update();
+    } else if (this.cpu) {
+      this.cpu.update();
     } else {
       this.initCanvas();
       this.update();
     }
   }
 
+  /**
+   * Begin bottleneck measurement
+   */
   begin() {
     if (this.ext) {
-      beginGPU.bind(this)();
+      this.gpu.begin();
     } else if (this.inited) {
-      beginCPU.bind(this)();
+      this.cpu.begin();
     } else {
       this.initCanvas();
       this.begin();
     }
   }
 
+  /**
+   * End bottleneck measurement
+   */
   end() {
     if (this.ext) {
-      endGPU.bind(this)();
+      this.gpu.end();
     } else if (this.inited) {
-      endCPU.bind(this)();
+      this.cpu.end();
     }
   }
 }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qunit-theme-ninja@2.0.0/qunit.css"></link>
+  <title>Testing</title>
+</head>
+<body> <!-- <p><a href="./qunit-example.html" class="src">To QUnit example</a></p> -->
+  <h2>TESTING OUTPUT</h2>
+  <div id="tapScreen"></div>
+</body>
+<script>
+  let spyTarget = window.console.log;
+  let tapScreen = document.getElementById('tapScreen');
+  function withSniffer() {
+    spyTarget.apply(window.console, arguments);
+    tapConsumer([...arguments]);
+  }
+  window.console.log = withSniffer;
+  window.console.error = withSniffer;
+  function tapConsumer(string) {
+    let tapScreen = document.getElementById("tapScreen");
+    string.forEach(line => {
+      let div = document.createElement("div");
+      let text = document.createTextNode(line);
+      div.appendChild(text)
+      tapScreen.appendChild(div);
+    });
+  }
+</script>
+<script type="module" src="./test.js"></script>
+</html>

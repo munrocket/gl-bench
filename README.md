@@ -23,13 +23,13 @@ let bench = new GlBench(fpsLogger, mesureLogger);
 
 function draw(now) {
 
-  // ...some other code in loop
+  // ...some code in loop
 
   bench.begin();
   // < monitored code >
   bench.end();
 
-  // ...some other code in loop
+  // ...some code in loop
 
   bench.update();
   requestAnimationFrame(draw);
