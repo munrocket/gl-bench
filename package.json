@@ -5,6 +5,7 @@
   "main": "dist/gl-bench.cjs.js",
   "module": "dist/gl-bench.esm.js",
   "browser": "dist/gl-bench.js",
+  "minimized": "dist/gl.bench.min.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "npm run build && npm-run-all -p watch serve open",
