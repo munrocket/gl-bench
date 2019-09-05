@@ -1,5 +1,5 @@
-import GPU from './gpu';
-import CPU from './cpu';
+import GPU from './gpu.js';
+import CPU from './cpu.js';
 
 /**
 * WebGL Benchmark Class
@@ -37,17 +37,17 @@ export default class GlBench {
           gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
           gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
           gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
-          this.gpu = new GPU(gl, ext);
+          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       } else {
         gl = canvas.getContext('webgl2');
         let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
         if (ext) {
-          this.gpu = new GPU(gl, ext);
+          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       }
     }
-    this.cpu = new CPU();
+    this.cpu = new CPU(this.fpsLogger, this.counterLogger);
   }
 
   /**
@@ -70,7 +70,7 @@ export default class GlBench {
   begin() {
     if (this.ext) {
       this.gpu.begin();
-    } else if (this.inited) {
+    } else if (this.cpu) {
       this.cpu.begin();
     } else {
       this.initCanvas();
@@ -84,7 +84,7 @@ export default class GlBench {
   end() {
     if (this.ext) {
       this.gpu.end();
-    } else if (this.inited) {
+    } else if (this.cpu) {
       this.cpu.end();
     }
   }

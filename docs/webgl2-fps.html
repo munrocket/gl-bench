@@ -34,7 +34,7 @@
   document.body.appendChild(ui.dom);
 
   // initialization
-  let bench = new GlBench( x => panel.update(x, 100) );  
+  let bench = new GlBench( x => panel.update(x, 100), x => console.log(x) );  
   
   function setup() {
     setupScene();

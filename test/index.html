@@ -8,28 +8,30 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qunit-theme-ninja@2.0.0/qunit.css"></link>
   <title>Testing</title>
 </head>
-<body> <!-- <p><a href="./qunit-example.html" class="src">To QUnit example</a></p> -->
+<body>
   <h2>TESTING OUTPUT</h2>
-  <div id="tapScreen"></div>
+  <div id="screen"></div>
+  <canvas></canvas>
+  <canvas></canvas>
 </body>
 <script>
-  let spyTarget = window.console.log;
-  let tapScreen = document.getElementById('tapScreen');
-  function withSniffer() {
+  const addSniffer = (spyTarget) => function() {
     spyTarget.apply(window.console, arguments);
-    tapConsumer([...arguments]);
+    sniffer([...arguments]);
   }
-  window.console.log = withSniffer;
-  window.console.error = withSniffer;
-  function tapConsumer(string) {
-    let tapScreen = document.getElementById("tapScreen");
+  window.console.log = addSniffer(window.console.log);
+  window.console.error = addSniffer(window.console.error);
+
+  let screen = document.getElementById('screen');
+  function sniffer(string) {
+    let screen = document.getElementById("screen");
     string.forEach(line => {
       let div = document.createElement("div");
       let text = document.createTextNode(line);
       div.appendChild(text)
-      tapScreen.appendChild(div);
+      screen.appendChild(div);
     });
   }
 </script>
-<script type="module" src="./test.js"></script>
+<script type="module" src="test.js"></script>
 </html>

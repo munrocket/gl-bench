@@ -5,13 +5,13 @@ export default [
   {
     input: 'src/index',
     output: [
-      { file: pkg.browser, name: 'GlBench', format: 'iife' },
+      { file: pkg.main, name: 'GlBench', format: 'iife' },
       { file: pkg.module, name: 'GlBench', format: 'module' },
     ]
   },
   {
     input: 'src/index',
-    output: { file: pkg.main, name: 'GlBench', format: 'iife' },
+    output: { file: pkg.minimized, name: 'GlBench', format: 'iife' },
     plugins: [ closure() ]
   }
 ]

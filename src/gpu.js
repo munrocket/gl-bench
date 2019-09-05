@@ -7,11 +7,11 @@
  */
 export default class GPU {
 
-  constructor(gl, ext, fpsLogger, counterLogger) {
-    this.gl = gl;
-    this.ext = ext;
+  constructor(fpsLogger, counterLogger, gl, ext) {
     this.fpsLogger = fpsLogger;
     this.counterLogger = counterLogger;
+    this.gl = gl;
+    this.ext = ext;
   }
 
   update() {

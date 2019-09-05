@@ -2,26 +2,23 @@
   "name": "gl-bench",
   "version": "0.0.6",
   "description": "A proper WebGL performance benchmark that uses GPU timers inside",
-  "main": "dist/gl-bench.min.js",
+  "main": "dist/gl-bench.js",
   "module": "dist/gl-bench.module.js",
-  "browser": "dist/gl-bench.js",
+  "minimized": "dist/gl-bench.min.js",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
-    "dev": "npm run build && npm-run-all -p watch serve integration",
-    "watch": "rollup -c -w",
-    "serve": "http-server -c-1 -p 1234",
-    "test": "node --experimental-modules --es-module-specifier-resolution=node ./test/test",
-    "integration": "open-cli http://127.0.0.1:1234/",
+    "dev": "npm run build && concurrently \"rollup -c -w\" \"npm:test\"",
+    "ci": "concurrently -k \"npm:test\" \"npm:puppeteer\"",
+    "test": "http-server -c-1 -p 1234",
+    "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer",
     "deploy": "npm version patch && git push --tags origin master"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.10.0",
-    "npm-run-all": "^4.1.5",
-    "open-cli": "^5.0.0",
-    "puppeteer-core": "^1.19.0",
+    "concurrently": "^4.1.2",
+    "puppeteer": "^1.19.0",
     "rollup": "^1.19.4",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "zora": "^3.0.2"
   },
   "author": "munrocket",
@@ -40,6 +37,7 @@
     "pixi",
     "three",
     "babylon",
-    "playcanvas"
+    "regl",
+    "cesium"
   ]
 }

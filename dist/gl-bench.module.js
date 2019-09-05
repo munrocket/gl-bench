@@ -7,11 +7,11 @@
  */
 class GPU {
 
-  constructor(gl, ext, fpsLogger, counterLogger) {
-    this.gl = gl;
-    this.ext = ext;
+  constructor(fpsLogger, counterLogger, gl, ext) {
     this.fpsLogger = fpsLogger;
     this.counterLogger = counterLogger;
+    this.gl = gl;
+    this.ext = ext;
   }
 
   update() {
@@ -142,7 +142,7 @@ class CPU {
       this.counterLogger(this.counterDuration / this.ms);
       this.counterDuration = 0;
     } else {
-      this.counterDuration += now() - this.counterBegin;
+      this.counterDuration += this.now() - this.counterBegin;
     }
     this.prevframes = this.frames;
   }
@@ -184,17 +184,17 @@ class GlBench {
           gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
           gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
           gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
-          this.gpu = new GPU(gl, ext);
+          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       } else {
         gl = canvas.getContext('webgl2');
         let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
         if (ext) {
-          this.gpu = new GPU(gl, ext);
+          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       }
     }
-    this.cpu = new CPU();
+    this.cpu = new CPU(this.fpsLogger, this.counterLogger);
   }
 
   /**
@@ -217,7 +217,7 @@ class GlBench {
   begin() {
     if (this.ext) {
       this.gpu.begin();
-    } else if (this.inited) {
+    } else if (this.cpu) {
       this.cpu.begin();
     } else {
       this.initCanvas();
@@ -231,7 +231,7 @@ class GlBench {
   end() {
     if (this.ext) {
       this.gpu.end();
-    } else if (this.inited) {
+    } else if (this.cpu) {
       this.cpu.end();
     }
   }

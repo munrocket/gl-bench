@@ -46,7 +46,7 @@ export default class CPU {
       this.counterLogger(this.counterDuration / this.ms);
       this.counterDuration = 0;
     } else {
-      this.counterDuration += now() - this.counterBegin;
+      this.counterDuration += this.now() - this.counterBegin;
     }
     this.prevframes = this.frames;
   }
