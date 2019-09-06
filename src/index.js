@@ -46,6 +46,7 @@ export default class GlBench {
           this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       }
+      this.gl = gl;
     }
     this.cpu = new CPU(this.fpsLogger, this.counterLogger);
   }

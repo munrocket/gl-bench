@@ -45,7 +45,7 @@ requestAnimationFrame(draw);
 - [x] update()
 - [x] examples
 - [x] webgl2 support
+- [x] tests
 - [ ] mesure into loop
-- [ ] tests
 - [ ] deal with GLuint64EXT
 - [ ] own ui

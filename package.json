@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A proper WebGL performance benchmark that uses GPU timers inside",
   "main": "dist/gl-bench.js",
   "module": "dist/gl-bench.module.js",
@@ -9,14 +9,14 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "npm run build && concurrently \"rollup -c -w\" \"npm:test\"",
-    "ci": "concurrently -k \"npm:test\" \"npm:puppeteer\"",
-    "test": "http-server -c-1 -p 1234",
+    "ci": "concurrently -k -s first \"npm:puppeteer\" \"http-server -c-1 -p 1234\"",
     "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer",
     "deploy": "npm version patch && git push --tags origin master"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.10.0",
     "concurrently": "^4.1.2",
+    "http-server": "^0.11.1",
     "puppeteer": "^1.19.0",
     "rollup": "^1.19.4",
     "zora": "^3.0.2"
