@@ -10,7 +10,7 @@
     "build": "rollup -c",
     "dev": "npm run build && concurrently \"rollup -c -w\" \"npm:test\"",
     "ci": "concurrently -k -s first \"npm:puppeteer\" \"http-server -c-1 -p 1234\"",
-    "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer",
+    "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer.js",
     "deploy": "npm version patch && git push --tags origin master"
   },
   "devDependencies": {
@@ -18,8 +18,8 @@
     "concurrently": "4.1.2",
     "http-server": "0.11.1",
     "puppeteer": "1.19.0",
-    "rollup": "1.19.4",
-    "zora": "3.0.3"
+    "rollup": "1.20.3",
+    "zora": "3.0.2"
   },
   "author": "munrocket",
   "license": "MIT",
