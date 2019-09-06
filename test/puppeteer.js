@@ -2,21 +2,23 @@ import puppeteer from 'puppeteer';
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--enable-webgl-draft-extensions', '--no-sandbox'] 
+    args: ['--no-sandbox', '--use-gl=egl'] 
   });
-
-  console.log('=== puppeteer test ===');
 
   const page = await browser.newPage();
   page.on('console', msg => {
     for (let i = 0; i < msg.args().length; ++i) {
       const str = msg.args()[i].toString().slice(9);
-      console.log(str);
+      if (str[0] == '#') {
+        console.log('\x1b[34m' + str)
+      } else {
+        console.log(str);
+      }
       if (str.trim() == '# ok') {
-        process.exit(0)
+        console.log('\x1b[32m' + 'SUCCESS!');
+        process.exit(0);
       } else if (str == '# not ok') {
-        process.exit(1)
+        process.exit(1);
       }
     }
   });

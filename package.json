@@ -10,7 +10,7 @@
     "build": "rollup -c",
     "dev": "npm run build && concurrently \"rollup -c -w\" \"npm:test\"",
     "ci": "concurrently -k -s first \"npm:puppeteer\" \"http-server -c-1 -p 1234\"",
-    "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer",
+    "puppeteer": "node --experimental-modules --es-module-specifier-resolution=node --no-warnings ./test/puppeteer.js",
     "deploy": "npm version patch && git push --tags origin master"
   },
   "devDependencies": {
