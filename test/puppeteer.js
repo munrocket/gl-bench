@@ -2,7 +2,8 @@ import puppeteer from 'puppeteer';
 
 (async () => {
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--use-gl=egl'] 
+    headless: false,
+    args: ['--use-gl=egl', '--no-sandbox', '--disable-setuid-sandbox'] 
   });
 
   const page = await browser.newPage();
