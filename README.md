@@ -5,7 +5,7 @@ WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` exte
 ### Motivation
 CPU timers are not synchronized with the graphics rendering pipeline and not guarantee the completion of a potentially
 large amount of graphics work accumulated before the timer is read, and will thus produce wildly inaccurate results.
-glFinish() or readPixels() can be used to determine when previous rendering commands have been completed,
+readPixels() can be used to determine when previous rendering commands have been completed,
 but will idle the graphics pipeline and adversely affect application performance.
 
 ### Usage
@@ -38,13 +38,13 @@ requestAnimationFrame(draw);
 ```
 
 ### Examples
-- [webgl fps](https://munrocket.github.io/gl-bench/docs/fps-webgl1.html)
-- [other examples](https://munrocket.github.io/gl-bench/docs/)
+- [webgl fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
+- [webgl2 fps](https://munrocket.github.io/gl-bench/examples/fps-webgl2.html)
 
 ### 2do list
 - [x] update()
 - [x] examples
 - [x] webgl2 support
-- [x] tests
+- [x] [tests](https://munrocket.github.io/gl-bench/test/index.html)
 - [ ] mesure into loop
 - [ ] own ui
