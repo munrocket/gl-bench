@@ -26,9 +26,9 @@ export default class GlBench {
       }
     }
     if (canvas && typeof canvas.getContext == 'function') {
-      let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      let ext, gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (gl) {
-        let ext = gl.getExtension('EXT_disjoint_timer_query');
+        ext = gl.getExtension('EXT_disjoint_timer_query');
         if (ext) {
           gl.createQuery = ext.createQueryEXT.bind(ext);
           gl.deleteQuery = ext.deleteQueryEXT.bind(ext);
@@ -37,16 +37,12 @@ export default class GlBench {
           gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
           gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
           gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
-          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       } else {
         gl = canvas.getContext('webgl2');
-        let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
-        if (ext) {
-          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
-        }
+        ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
       }
-      this.gl = gl;
+      this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
     }
     this.cpu = new CPU(this.fpsLogger, this.counterLogger);
   }
@@ -70,7 +66,7 @@ export default class GlBench {
    */
   end() {
     if (this.gpu) {
-      this.gpu.end();
+      this.cpu.end();
     } else if (this.cpu) {
       this.cpu.end();
     }

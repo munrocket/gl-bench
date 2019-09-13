@@ -22,14 +22,10 @@ function measureLogger(percent) {
 let bench = new GlBench(fpsLogger, measureLogger);
 
 function draw(now) {
-
-  // ...
-
+  
   bench.begin();
   // monitored code
   bench.end();
-
-  // ...
 
   requestAnimationFrame(draw);
 }

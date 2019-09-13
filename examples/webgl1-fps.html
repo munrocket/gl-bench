@@ -27,12 +27,12 @@
 
   let settings = {
     count: 1000000,
-    'cpu fps': () => window.location.replace("/examples/cpu-fps.html"),
-    'cpu measure': () => window.location.replace("/examples/cpu-measure.html"),
-    'webgl1 fps': () => window.location.replace("/examples/webgl1-fps.html"),
-    'webgl1 measure': () => window.location.replace("/examples/webgl1-measure.html"),
-    'webgl2 fps': () => window.location.replace("/examples/webgl2-fps.html"),
-    'webgl2 measure': () => window.location.replace("/examples/webgl2-measure.html"),
+    'cpu fps': () => window.location.replace("./cpu-fps.html"),
+    'cpu measure': () => window.location.replace("./cpu-measure.html"),
+    'webgl1 fps': () => window.location.replace("./webgl1-fps.html"),
+    'webgl1 measure': () => window.location.replace("./webgl1-measure.html"),
+    'webgl2 fps': () => window.location.replace("./webgl2-fps.html"),
+    'webgl2 measure': () => window.location.replace("./webgl2-measure.html"),
   };
   var gui = new dat.GUI();
   gui.add(settings, 'cpu fps');

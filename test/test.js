@@ -37,7 +37,7 @@ test('WebGL1', async (t) => {
     try {
       const canvas = document.getElementsByTagName('canvas')[0];
       bench.init(canvas);
-      t.ok(bench.gl instanceof WebGLRenderingContext, 'webgl context exists');
+      t.ok(bench.gpu.gl instanceof WebGLRenderingContext, 'webgl context exists');
       t.ok(bench.gpu, 'disjoint timer exists');
       for(let frameId = 0; frameId < 4; frameId++) {
         bench.update();
@@ -76,7 +76,7 @@ test('WebGL2', async (t) => {
     const canvas = document.getElementsByTagName('canvas')[2];
     canvas.getContext('webgl2');
     bench.init(canvas);
-    t.ok(bench.gl instanceof WebGL2RenderingContext, 'webgl2 context exists');
+    t.ok(bench.gpu.gl instanceof WebGL2RenderingContext, 'webgl2 context exists');
     t.ok(bench.gpu, 'disjoint timer exists');
     for(let frameId = 0; frameId < 4; frameId++) {
       bench.update();

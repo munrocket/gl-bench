@@ -1,10 +1,3 @@
-/**
- * GPU benchmark
- * @param { WebGLRenderingContext | WebGL2RenderingContext } gl 
- * @param { EXT_disjoint_timer_query | EXT_disjoint_timer_query_webgl2 } ext 
- * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } measureLogger 
- */
 class GPU {
 
   constructor(fpsLogger, measureLogger, gl, ext) {
@@ -26,35 +19,30 @@ class GPU {
     } else {
       this.frameId++;
       this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-      if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-        for (let i = this.queryId; i < this.queue.length; i++) {
-          if (!this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT_AVAILABLE)) {
-            break;
-          }
-          
-          this.queryId++;
-          const dt = this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT);
-          this.elapsedAccum += dt;
-          if (this.queue[i].isMeasure) {
-            this.measureAccum += dt;
-          }
+      while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) && this.queue[this.queryId] &&
+          this.gl.getQueryParameter(this.queue[this.queryId].query, this.gl.QUERY_RESULT_AVAILABLE)) {
+        
+        const dt = this.gl.getQueryParameter(this.queue[this.queryId].query, this.gl.QUERY_RESULT);
+        this.elapsedAccum += dt;
+        this.measureAccum += this.queue[this.queryId].isMeasure ? dt : 0;
+        let seconds = this.elapsedAccum / 1e9;
 
-          let seconds = this.elapsedAccum / 1e9;
-          if (seconds >= 1) {
-            const fps = (this.queue[this.queryId].frameId - this.queue[0].frameId) / seconds;
-            while (seconds >= 1) {
-              this.fpsLogger(fps);
-              this.measureLogger(this.measureAccum / this.elapsedAccum);
-              seconds--;
-            }
-            for (let j = 0; j < i + 1; j++) {
-              this.gl.deleteQuery(this.queue[j].query);
-            }
-            this.queue.splice(0, i + 1);
-            this.measureAccum = 0;
-            this.elapsedAccum = 0;
-            this.queryId = 0;
+        this.queryId++;
+        
+        if (seconds >= 1) {
+          const fps = (this.queue[this.queryId-1].frameId - this.queue[0].frameId) / seconds;
+          while (seconds >= 1) {
+            this.fpsLogger(fps);
+            this.measureLogger(this.measureAccum / this.elapsedAccum);
+            seconds--;
           }
+          for (let j = 0; j < this.queryId; j++) {
+            this.gl.deleteQuery(this.queue[j].query);
+          }
+          this.queue.splice(0, this.queryId);
+          this.elapsedAccum = 0;
+          this.measureAccum = 0;
+          this.queryId = 0;
         }
       }
 
@@ -72,11 +60,6 @@ class GPU {
   }
 }
 
-/**
- * CPU benchmark
- * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } measureLogger 
- */
 class CPU {
 
   constructor(fpsLogger, measureLogger) {
@@ -91,14 +74,14 @@ class CPU {
   }
 
   begin() {
-    if (typeof this.secStart == 'undefined') {
-      this.secStart = this.now();
-      this.currTime = this.secStart;
+    if (typeof this.zerotime == 'undefined') {
+      this.zerotime = this.now();
+      this.timestamp = this.zerotime;
     } else {
       this.frameCount++;
-      this.currTime = this.now();
+      this.timestamp = this.now();
 
-      const elapsed = this.currTime - this.secStart;
+      const elapsed = this.timestamp - this.zerotime;
       let seconds = elapsed / 1e3;
       if (seconds >= 1) {
         const fps = this.frameCount / seconds;
@@ -109,13 +92,13 @@ class CPU {
         }
         this.measureAccum = 0;
         this.frameCount = 0;
-        this.secStart = this.currTime;
+        this.zerotime = this.timestamp;
       }
     }
   }
 
   end() {
-    this.measureAccum += this.now() - this.currTime;
+    this.measureAccum += this.now() - this.timestamp;
   }
 }
 
@@ -144,9 +127,9 @@ class GlBench {
       }
     }
     if (canvas && typeof canvas.getContext == 'function') {
-      let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      let ext, gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (gl) {
-        let ext = gl.getExtension('EXT_disjoint_timer_query');
+        ext = gl.getExtension('EXT_disjoint_timer_query');
         if (ext) {
           gl.createQuery = ext.createQueryEXT.bind(ext);
           gl.deleteQuery = ext.deleteQueryEXT.bind(ext);
@@ -155,16 +138,12 @@ class GlBench {
           gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
           gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
           gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
-          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       } else {
         gl = canvas.getContext('webgl2');
-        let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
-        if (ext) {
-          this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
-        }
+        ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
       }
-      this.gl = gl;
+      this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
     }
     this.cpu = new CPU(this.fpsLogger, this.counterLogger);
   }
@@ -174,6 +153,7 @@ class GlBench {
    */
   begin() {
     if (this.gpu) {
+      this.cpu.begin();
       this.gpu.begin();
     } else if (this.cpu) {
       this.cpu.begin();
@@ -189,6 +169,7 @@ class GlBench {
   end() {
     if (this.gpu) {
       this.gpu.end();
+      this.cpu.end();
     } else if (this.cpu) {
       this.cpu.end();
     }

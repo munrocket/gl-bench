@@ -1,8 +1,3 @@
-/**
- * CPU benchmark
- * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } measureLogger 
- */
 export default class CPU {
 
   constructor(fpsLogger, measureLogger) {
@@ -17,14 +12,14 @@ export default class CPU {
   }
 
   begin() {
-    if (typeof this.secStart == 'undefined') {
-      this.secStart = this.now();
-      this.currTime = this.secStart;
+    if (typeof this.zerotime == 'undefined') {
+      this.zerotime = this.now();
+      this.timestamp = this.zerotime;
     } else {
       this.frameCount++;
-      this.currTime = this.now();
+      this.timestamp = this.now();
 
-      const elapsed = this.currTime - this.secStart;
+      const elapsed = this.timestamp - this.zerotime;
       let seconds = elapsed / 1e3;
       if (seconds >= 1) {
         const fps = this.frameCount / seconds;
@@ -35,12 +30,12 @@ export default class CPU {
         }
         this.measureAccum = 0;
         this.frameCount = 0;
-        this.secStart = this.currTime;
+        this.zerotime = this.timestamp;
       }
     }
   }
 
   end() {
-    this.measureAccum += this.now() - this.currTime;
+    this.measureAccum += this.now() - this.timestamp;
   }
 }
