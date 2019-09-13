@@ -3,148 +3,119 @@
  * @param { WebGLRenderingContext | WebGL2RenderingContext } gl 
  * @param { EXT_disjoint_timer_query | EXT_disjoint_timer_query_webgl2 } ext 
  * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } counterLogger 
+ * @param { (x: string) => void } measureLogger 
  */
 class GPU {
 
-  constructor(fpsLogger, counterLogger, gl, ext) {
+  constructor(fpsLogger, measureLogger, gl, ext) {
     this.fpsLogger = fpsLogger;
-    this.counterLogger = counterLogger;
+    this.measureLogger = measureLogger ? measureLogger : () => {};
     this.gl = gl;
     this.ext = ext;
-  }
 
-  update() {
-    if (this.gpuFrames === undefined) {
-      this.queries = [ this.gl.createQuery() ];
-      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queries[0]);
-      this.gpuFrames = 0;
-      this.nanosecs = [];
-      this.duration = 0;
-    } else {
-      this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-
-      if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-        for (let frameId = this.gpuFrames; frameId < this.queries.length; frameId++) {
-          if (!this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT_AVAILABLE)) {
-            break;
-          }
-
-          this.gpuFrames++;
-          const ns = this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT);
-          this.nanosecs.push(ns);
-          this.duration += ns;
-          let seconds = this.duration / 1e9;
-          if (seconds >= 1) {
-            const fps = this.gpuFrames / seconds;
-            while (seconds >= 1) {
-              this.fpsLogger(fps);
-              seconds--;
-            }
-
-            for (let i = 0; i < frameId + 1; i++) {
-              this.gl.deleteQuery(this.queries[i]);
-            }
-            this.queries.splice(0, frameId + 1);
-            this.nanosecs.splice(0, frameId + 1);
-            this.gpuFrames = 0;
-            this.duration = 0;
-          }
-        }
-      }
-      
-      this.queries.push(this.gl.createQuery());
-      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queries[this.queries.length-1]);
-    }
+    this.frameId = 0;
+    this.elapsedAccum = 0;
+    this.measureAccum = 0;
+    this.queue = [{ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId }];
   }
 
   begin() {
-    if (this.startCounter === undefined) {
-      this.startCounter = [ ];
-      this.finishCounter = [ ];
+    if (typeof this.queryId == 'undefined') {
+      this.queryId = 0;
+      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[0].query);
+    } else {
+      this.frameId++;
+      this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
+      if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
+        for (let i = this.queryId; i < this.queue.length; i++) {
+          if (!this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT_AVAILABLE)) {
+            break;
+          }
+          
+          this.queryId++;
+          const dt = this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT);
+          this.elapsedAccum += dt;
+          if (this.queue[i].isMeasure) {
+            this.measureAccum += dt;
+          }
+
+          let seconds = this.elapsedAccum / 1e9;
+          if (seconds >= 1) {
+            const fps = (this.queue[this.queryId].frameId - this.queue[0].frameId) / seconds;
+            while (seconds >= 1) {
+              this.fpsLogger(fps);
+              this.measureLogger(this.measureAccum / this.elapsedAccum);
+              seconds--;
+            }
+            for (let j = 0; j < i + 1; j++) {
+              this.gl.deleteQuery(this.queue[j].query);
+            }
+            this.queue.splice(0, i + 1);
+            this.measureAccum = 0;
+            this.elapsedAccum = 0;
+            this.queryId = 0;
+          }
+        }
+      }
+
+      this.queue.push({ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId });
+      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[this.queue.length-1].query);
     }
-    this.startCounter.push(this.gl.createQuery());
-    this.finishCounter.push(this.gl.createQuery());
-    this.ext.queryCounterEXT(this.startCounter[this.startCounter.length-1], this.ext.TIMESTAMP_EXT);
   }
 
   end() {
-    this.ext.queryCounterEXT(this.finishCounter[this.finishCounter.length-1], this.ext.TIMESTAMP_EXT);
-  }
+    this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
+    this.queue[this.queue.length-1].isMeasure = true;
 
-  calcCounter(frameId) {
-    let counterDuration = 0;
-    let framesDuration = 0;
-    if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-      for (let i = 0, len = Math.min(this.startCounter.length, this.finishCounter.length); i < len; i++) {
-        const startAvailable = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-        const finishAvailable = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-        console.log(startAvailable, finishAvailable);
-        if (startAvailable && finishAvailable) {
-          const startResult = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT);
-          const finishResult = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT);
-          counterDuration += (finishResult - startResult) / 1e9;
-          framesDuration += this.nanosecs[i];
-        }
-      }
-    }
-    if (framesDuration != 0) {
-      this.counterLogger(counterDuration / framesDuration);
-    }
+    this.queue.push({ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId });
+    this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[this.queue.length-1].query);
   }
 }
 
 /**
  * CPU benchmark
  * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } counterLogger 
+ * @param { (x: string) => void } measureLogger 
  */
 class CPU {
 
-  constructor(fpsLogger, counterLogger) {
+  constructor(fpsLogger, measureLogger) {
     this.fpsLogger = fpsLogger;
-    this.counterLogger = counterLogger;
+    this.measureLogger = measureLogger ? measureLogger : () => {};
+    this.frameCount = 0;
+    this.measureAccum = 0;
   }
 
   now() {
-    return (typeof performance != 'undefined') ? performance.now() : Date.now();
+    return (typeof performance == 'undefined') ? Date.now() : performance.now();
   }
 
-  update() {
-    if (this.frames === undefined) {
-      this.frames = 0;
-      this.prevTime = this.now();
+  begin() {
+    if (typeof this.secStart == 'undefined') {
+      this.secStart = this.now();
+      this.currTime = this.secStart;
     } else {
-      this.frames++;
-      let time = this.now();
-      this.ms = time - this.prevTime;
-      let seconds = this.ms / 1000;
+      this.frameCount++;
+      this.currTime = this.now();
+
+      const elapsed = this.currTime - this.secStart;
+      let seconds = elapsed / 1e3;
       if (seconds >= 1) {
-        let fps = this.frames / seconds;
+        const fps = this.frameCount / seconds;
         while (seconds >= 1) {
           this.fpsLogger(fps);
+          this.measureLogger(this.measureAccum / elapsed);
           seconds--;
         }
-        this.frames = 0;
-        this.prevTime = time;
+        this.measureAccum = 0;
+        this.frameCount = 0;
+        this.secStart = this.currTime;
       }
     }
   }
 
-  begin() {
-    this.counterBegin = this.now();
-  }
-
   end() {
-    if (this.prevframes === undefined) {
-      this.counterDuration = 0;
-    } else if (this.frames === 0) {
-      this.counterLogger(this.counterDuration / this.ms);
-      this.counterDuration = 0;
-    } else {
-      this.counterDuration += this.now() - this.counterBegin;
-    }
-    this.prevframes = this.frames;
+    this.measureAccum += this.now() - this.currTime;
   }
 }
 
@@ -163,7 +134,7 @@ class GlBench {
    * Explicit canvas initialization
    * @param { ?HTMLCanvasElement } canvas 
    */
-  initCanvas(canvas) {
+  init(canvas) {
     if (!canvas) {
       let cs = document.getElementsByTagName('canvas');
       for (let i = 0; i < cs.length; i++) {
@@ -175,39 +146,6 @@ class GlBench {
     if (canvas && typeof canvas.getContext == 'function') {
       let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (gl) {
-        [
-          'ANGLE_instanced_arrays',
-          'EXT_blend_minmax',
-          'EXT_color_buffer_half_float',
-          'EXT_disjoint_timer_query',
-          'EXT_float_blend',
-          'EXT_frag_depth',
-          'EXT_shader_texture_lod',
-          'EXT_texture_filter_anisotropic',
-          'WEBKIT_EXT_texture_filter_anisotropic',
-          'EXT_sRGB',
-          'OES_element_index_uint',
-          'OES_standard_derivatives',
-          'OES_texture_float',
-          'OES_texture_float_linear',
-          'OES_texture_half_float',
-          'OES_texture_half_float_linear',
-          'OES_vertex_array_object',
-          'WEBGL_color_buffer_float',
-          'WEBGL_compressed_texture_s3tc',
-          'WEBKIT_WEBGL_compressed_texture_s3tc',
-          'WEBGL_compressed_texture_s3tc_srgb',
-          'WEBGL_debug_renderer_info',
-          'WEBGL_debug_shaders',
-          'WEBGL_depth_texture',
-          'WEBKIT_WEBGL_depth_texture',
-          'WEBGL_draw_buffers',
-          'WEBGL_lose_context',
-          'WEBKIT_WEBGL_lose_context',
-          'WEBGL_multi_draw',
-          'WEBGL_multi_draw_instanced',
-          'WEBGL_video_texture',
-        ].forEach( x => { if (!gl.getExtension(x)) console.log(x); });
         let ext = gl.getExtension('EXT_disjoint_timer_query');
         if (ext) {
           gl.createQuery = ext.createQueryEXT.bind(ext);
@@ -221,21 +159,6 @@ class GlBench {
         }
       } else {
         gl = canvas.getContext('webgl2');
-        [
-          'EXT_color_buffer_float',
-          'EXT_disjoint_timer_query_webgl2',
-          'EXT_float_blend',
-          'EXT_texture_filter_anisotropic',
-          'OES_texture_float_linear',
-          'WEBGL_compressed_texture_s3tc',
-          'WEBGL_compressed_texture_s3tc_srgb',
-          'WEBGL_debug_renderer_info',
-          'WEBGL_debug_shaders',
-          'WEBGL_lose_context',
-          'WEBGL_multi_draw',
-          'WEBGL_multi_draw_instanced',
-          'WEBGL_video_texture',
-        ].forEach( x => { if (!gl.getExtension(x)) console.log('2' + x); });
         let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
         if (ext) {
           this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
@@ -247,29 +170,15 @@ class GlBench {
   }
 
   /**
-   * Update fps
-   */
-  update() {
-    if (this.gpu) {
-      this.gpu.update();
-    } else if (this.cpu) {
-      this.cpu.update();
-    } else {
-      this.initCanvas();
-      this.update();
-    }
-  }
-
-  /**
    * Begin bottleneck measurement
    */
   begin() {
-    if (this.ext) {
+    if (this.gpu) {
       this.gpu.begin();
     } else if (this.cpu) {
       this.cpu.begin();
     } else {
-      this.initCanvas();
+      this.init();
       this.begin();
     }
   }
@@ -278,11 +187,18 @@ class GlBench {
    * End bottleneck measurement
    */
   end() {
-    if (this.ext) {
+    if (this.gpu) {
       this.gpu.end();
     } else if (this.cpu) {
       this.cpu.end();
     }
+  }
+
+  /**
+   * Update fps
+   */
+  update() {
+    this.begin();
   }
 }
 

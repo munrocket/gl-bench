@@ -1,4 +1,5 @@
 {
   "automerge": true,
-  "automergeType": "branch"
+  "automergeType": "branch",
+  "bumpVersion": "minor"
 }

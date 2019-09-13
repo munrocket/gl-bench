@@ -16,7 +16,7 @@ export default class GlBench {
    * Explicit canvas initialization
    * @param { ?HTMLCanvasElement } canvas 
    */
-  initCanvas(canvas) {
+  init(canvas) {
     if (!canvas) {
       let cs = document.getElementsByTagName('canvas');
       for (let i = 0; i < cs.length; i++) {
@@ -40,6 +40,7 @@ export default class GlBench {
           this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
         }
       } else {
+        gl = canvas.getContext('webgl2');
         let ext = (gl) ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
         if (ext) {
           this.gpu = new GPU(this.fpsLogger, this.counterLogger, gl, ext);
@@ -51,29 +52,15 @@ export default class GlBench {
   }
 
   /**
-   * Update fps
-   */
-  update() {
-    if (this.gpu) {
-      this.gpu.update();
-    } else if (this.cpu) {
-      this.cpu.update();
-    } else {
-      this.initCanvas();
-      this.update();
-    }
-  }
-
-  /**
    * Begin bottleneck measurement
    */
   begin() {
-    if (this.ext) {
+    if (this.gpu) {
       this.gpu.begin();
     } else if (this.cpu) {
       this.cpu.begin();
     } else {
-      this.initCanvas();
+      this.init();
       this.begin();
     }
   }
@@ -82,10 +69,17 @@ export default class GlBench {
    * End bottleneck measurement
    */
   end() {
-    if (this.ext) {
+    if (this.gpu) {
       this.gpu.end();
     } else if (this.cpu) {
       this.cpu.end();
     }
+  }
+
+  /**
+   * Update fps
+   */
+  update() {
+    this.begin();
   }
 }

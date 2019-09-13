@@ -6,12 +6,18 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Integration Testing</title>
   <link rel="icon" href="data:;base64,=">
-  <style>body { margin: 0; background-color: black; } canvas { display: block; }</style>
+  <style>
+    body { margin: 0; background-color: black; position: relative; }
+    canvas { display: block; position: absolute; }
+    h2 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  </style>
 </head>
 <body>
+  <h2>WebGL2 measure</h2>
   <canvas id="c"></canvas>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/examples/js/WebGL.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
 <script src="../dist/gl-bench.js"></script>
@@ -20,13 +26,28 @@
   let camera;
   let renderer;
 
-  let len = { count: 1000000 };
+  let settings = {
+    count: 1000000,
+    'cpu fps': () => window.location.replace("/examples/cpu-fps.html"),
+    'cpu measure': () => window.location.replace("/examples/cpu-measure.html"),
+    'webgl1 fps': () => window.location.replace("/examples/webgl1-fps.html"),
+    'webgl1 measure': () => window.location.replace("/examples/webgl1-measure.html"),
+    'webgl2 fps': () => window.location.replace("/examples/webgl2-fps.html"),
+    'webgl2 measure': () => window.location.replace("/examples/webgl2-measure.html"),
+  };
   var gui = new dat.GUI();
-  gui.add(len, 'count', 10000, 5000000).onFinishChange(dumbUpdate);
+  gui.add(settings, 'cpu fps');
+  gui.add(settings, 'cpu measure');
+  gui.add(settings, 'webgl1 fps');
+  gui.add(settings, 'webgl1 measure');
+  gui.add(settings, 'webgl2 fps');
+  gui.add(settings, 'webgl2 measure');
+  gui.add(settings, 'count', 10000, 5000000);
+  let prevCount = settings.count;
 
   // ui helper
   let ui = new Stats();
-  let panel = ui.addPanel(new Stats.Panel( 'gFPS', '#b5f', '#111' ));
+  let panel = ui.addPanel(new Stats.Panel( 'FPS', '#b5f', '#111' ));
   ui.dom.style.cssText = 'position:fixed;top:0;left:0;opacity:0.9;z-index:10000';
   ui.dom.addEventListener('click', e => { e.stopPropagation() }, true);
   ui.showPanel(3);
@@ -34,7 +55,6 @@
 
   // initialization
   let bench = new GlBench(x => panel.update(x, 100), x => console.log(x));  
-  bench.initCanvas(document.body);//turn on CPU fallback
   
   function setup() {
     setupScene();
@@ -42,25 +62,6 @@
     setupRenderer();
     setupParticles();
     setupEventListeners();
-  }
-    
-  function draw() {
-    // bench update
-
-    bench.begin();
-    movePosition(camera.position, 0);
-    bench.end();
-    camera.lookAt(scene.position);
-    renderer.render(scene, camera);
-
-    bench.update();
-    
-    requestAnimationFrame(draw);
-  }
-  
-  function dumbUpdate() {
-    scene.remove(scene.children[0]);
-    setupParticles();
   }
   
   function setupScene() {
@@ -73,6 +74,9 @@
   }
   
   function setupRenderer() {
+    if ( THREE.WEBGL.isWebGL2Available() === false ) {
+      document.body.appendChild( THREE.WEBGL.getWebGL2ErrorMessage() );
+    }
     let canvas = document.getElementById('c');
     let context = canvas.getContext( 'webgl2' );
     renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
@@ -83,7 +87,7 @@
     let geometry = new THREE.Geometry();
     addLorenzVertices(geometry);
     let color = new THREE.Color(0xbb00ff);
-    for (let i = 0; i < len.count; i++) {
+    for (let i = 0; i < settings.count; i++) {
       geometry.colors.push(color);
     }
     let material = new THREE.PointsMaterial({ size: 1, vertexColors: THREE.VertexColors, depthTest: false, opacity: 0.3, sizeAttenuation: false, transparent: true });
@@ -105,7 +109,7 @@
     let b = 28.0;
     let c = 8.0 / 3.0;
   
-    for (let i = 0; i < len.count; i++) {
+    for (let i = 0; i < settings.count; i++) {
       x1 = x0 + h * a * (y0 - x0);
       y1 = y0 + h * (x0 * (b - z0) - y0);
       z1 = z0 + h * (x0 * y0 - c * z0);
@@ -134,6 +138,26 @@
     let y = r * Math.sin(φ + phase) * Math.sin(θ + phase);
     let z = r * Math.cos(φ + phase);
     position.set(x, y, z);
+  }
+
+  function heavyUpdate() {
+    if (prevCount != settings.count) {
+      scene.remove(scene.children[0]);
+      setupParticles();
+      prevCount = settings.count;
+    }
+  }
+  
+  function draw() {
+    bench.begin();
+
+    movePosition(camera.position, 0);
+    camera.lookAt(scene.position);
+    heavyUpdate();
+    renderer.render(scene, camera);
+    requestAnimationFrame(draw);
+    
+    bench.end();
   }
   
   setup();

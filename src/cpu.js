@@ -1,53 +1,46 @@
 /**
  * CPU benchmark
  * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } counterLogger 
+ * @param { (x: string) => void } measureLogger 
  */
 export default class CPU {
 
-  constructor(fpsLogger, counterLogger) {
+  constructor(fpsLogger, measureLogger) {
     this.fpsLogger = fpsLogger;
-    this.counterLogger = counterLogger;
+    this.measureLogger = measureLogger ? measureLogger : () => {};
+    this.frameCount = 0;
+    this.measureAccum = 0;
   }
 
   now() {
-    return (typeof performance != 'undefined') ? performance.now() : Date.now();
+    return (typeof performance == 'undefined') ? Date.now() : performance.now();
   }
 
-  update() {
-    if (this.frames === undefined) {
-      this.frames = 0;
-      this.prevTime = this.now();
+  begin() {
+    if (typeof this.secStart == 'undefined') {
+      this.secStart = this.now();
+      this.currTime = this.secStart;
     } else {
-      this.frames++;
-      let time = this.now();
-      this.ms = time - this.prevTime;
-      let seconds = this.ms / 1000;
+      this.frameCount++;
+      this.currTime = this.now();
+
+      const elapsed = this.currTime - this.secStart;
+      let seconds = elapsed / 1e3;
       if (seconds >= 1) {
-        let fps = this.frames / seconds;
+        const fps = this.frameCount / seconds;
         while (seconds >= 1) {
           this.fpsLogger(fps);
+          this.measureLogger(this.measureAccum / elapsed);
           seconds--;
         }
-        this.frames = 0;
-        this.prevTime = time;
+        this.measureAccum = 0;
+        this.frameCount = 0;
+        this.secStart = this.currTime;
       }
     }
   }
 
-  begin() {
-    this.counterBegin = this.now();
-  }
-
   end() {
-    if (this.prevframes === undefined) {
-      this.counterDuration = 0;
-    } else if (this.frames === 0) {
-      this.counterLogger(this.counterDuration / this.ms);
-      this.counterDuration = 0;
-    } else {
-      this.counterDuration += this.now() - this.counterBegin;
-    }
-    this.prevframes = this.frames;
+    this.measureAccum += this.now() - this.currTime;
   }
 }

@@ -3,102 +3,71 @@
  * @param { WebGLRenderingContext | WebGL2RenderingContext } gl 
  * @param { EXT_disjoint_timer_query | EXT_disjoint_timer_query_webgl2 } ext 
  * @param { (x: string) => void } fpsLogger 
- * @param { (x: string) => void } counterLogger 
+ * @param { (x: string) => void } measureLogger 
  */
 export default class GPU {
 
-  constructor(fpsLogger, counterLogger, gl, ext) {
+  constructor(fpsLogger, measureLogger, gl, ext) {
     this.fpsLogger = fpsLogger;
-    this.counterLogger = counterLogger;
+    this.measureLogger = measureLogger ? measureLogger : () => {};
     this.gl = gl;
     this.ext = ext;
-  }
 
-  update() {
-    if (this.gpuFrames === undefined) {
-      this.queries = [ this.gl.createQuery() ];
-      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queries[0]);
-      this.gpuFrames = 0;
-      this.nanosecs = [];
-      this.duration = 0
-    } else {
-      this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-
-      if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-        for (let frameId = this.gpuFrames; frameId < this.queries.length; frameId++) {
-          if (!this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT_AVAILABLE)) {
-            break;
-          }
-
-          this.gpuFrames++;
-          const ns = this.gl.getQueryParameter(this.queries[frameId], this.gl.QUERY_RESULT);
-          this.nanosecs.push(ns);
-          this.duration += ns;
-          let seconds = this.duration / 1e9;
-          if (seconds >= 1) {
-            const fps = this.gpuFrames / seconds;
-            while (seconds >= 1) {
-              this.fpsLogger(fps);
-              seconds--;
-            }
-
-            for (let i = 0; i < frameId + 1; i++) {
-              this.gl.deleteQuery(this.queries[i]);
-            }
-            this.queries.splice(0, frameId + 1);
-            this.nanosecs.splice(0, frameId + 1);
-            this.gpuFrames = 0;
-            this.duration = 0;
-          }
-        }
-      }
-      
-      this.queries.push(this.gl.createQuery());
-      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queries[this.queries.length-1]);
-    }
+    this.frameId = 0;
+    this.elapsedAccum = 0;
+    this.measureAccum = 0;
+    this.queue = [{ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId }];
   }
 
   begin() {
-    if (this.startCounter === undefined) {
-      this.startCounter = [ ];
-      this.finishCounter = [ ];
+    if (typeof this.queryId == 'undefined') {
+      this.queryId = 0;
+      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[0].query);
+    } else {
+      this.frameId++;
+      this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
+      if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
+        for (let i = this.queryId; i < this.queue.length; i++) {
+          if (!this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT_AVAILABLE)) {
+            break;
+          }
+          
+          this.queryId++;
+          const dt = this.gl.getQueryParameter(this.queue[i].query, this.gl.QUERY_RESULT);
+          this.elapsedAccum += dt;
+          if (this.queue[i].isMeasure) {
+            this.measureAccum += dt;
+          }
+
+          let seconds = this.elapsedAccum / 1e9;
+          if (seconds >= 1) {
+            const fps = (this.queue[this.queryId].frameId - this.queue[0].frameId) / seconds;
+            while (seconds >= 1) {
+              this.fpsLogger(fps);
+              this.measureLogger(this.measureAccum / this.elapsedAccum);
+              seconds--;
+            }
+            for (let j = 0; j < i + 1; j++) {
+              this.gl.deleteQuery(this.queue[j].query);
+            }
+            this.queue.splice(0, i + 1);
+            this.measureAccum = 0;
+            this.elapsedAccum = 0;
+            this.queryId = 0;
+          }
+        }
+      }
+
+      this.queue.push({ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId });
+      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[this.queue.length-1].query);
     }
-    this.startCounter.push(this.gl.createQuery());
-    this.finishCounter.push(this.gl.createQuery());
-    this.ext.queryCounterEXT(this.startCounter[this.startCounter.length-1], this.ext.TIMESTAMP_EXT);
   }
 
   end() {
-    this.ext.queryCounterEXT(this.finishCounter[this.finishCounter.length-1], this.ext.TIMESTAMP_EXT);
-  }
+    this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
+    this.queue[this.queue.length-1].isMeasure = true;
 
-  calcCounter(frameId) {
-    let counterDuration = 0;
-    let framesDuration = 0;
-    if (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT)) {
-      for (let i = 0, len = Math.min(this.startCounter.length, this.finishCounter.length); i < len; i++) {
-        const startAvailable = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-        const finishAvailable = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT_AVAILABLE);
-        console.log(startAvailable, finishAvailable);
-        if (startAvailable && finishAvailable) {
-          const startResult = this.gl.getQueryParameter(this.startCounter[i], this.gl.QUERY_RESULT);
-          const finishResult = this.gl.getQueryParameter(this.finishCounter[i], this.gl.QUERY_RESULT);
-          counterDuration += (finishResult - startResult) / 1e9;
-          framesDuration += this.nanosecs[i];
-        }
-      }
-    }
-    if (framesDuration != 0) {
-      this.counterLogger(counterDuration / framesDuration);
-    }
-
-    if ( /* all bugs are fixed */  false ) {
-      for (let i = 0; i < frameId + 1; i++) {
-        this.gl.deleteQuery(this.startCounter[i]);
-        this.gl.deleteQuery(this.finishCounter[i]);
-      }
-      this.startCounter.splice(0, frameId + 1);
-      this.finishCounter.splice(0, frameId + 1);
-    }
+    this.queue.push({ query: this.gl.createQuery(), isMeasure: false, frameId: this.frameId });
+    this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queue[this.queue.length-1].query);
   }
 }

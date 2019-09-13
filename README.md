@@ -14,37 +14,37 @@ but will idle the graphics pipeline and adversely affect application performance
 function fpsLogger(fps) {
   updateUI(fps);
 }
-function mesureLogger(percent) {
+function measureLogger(percent) {
   console.log(percent);
 }
 
 /* init benchmark */
-let bench = new GlBench(fpsLogger, mesureLogger);
+let bench = new GlBench(fpsLogger, measureLogger);
 
 function draw(now) {
 
-  // ...some code in loop
+  // ...
 
   bench.begin();
-  // < monitored code >
+  // monitored code
   bench.end();
 
-  // ...some code in loop
+  // ...
 
-  bench.update();
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
 ```
 
 ### Examples
-- [webgl fps](https://munrocket.github.io/gl-bench/examples/fps-webgl1.html)
-- [webgl2 fps](https://munrocket.github.io/gl-bench/examples/fps-webgl2.html)
+- [webgl fps](https://munrocket.github.io/gl-bench/examples/webgl1-fps.html)
+- [webgl measure](https://munrocket.github.io/gl-bench/examples/webgl1-measure.html)
 
 ### 2do list
 - [x] update()
 - [x] examples
 - [x] webgl2 support
-- [x] [tests](https://munrocket.github.io/gl-bench/test/index.html)
-- [ ] mesure into loop
+- [x] tests
+- [x] measure into loop
 - [ ] own ui
+- [ ] several measurements
