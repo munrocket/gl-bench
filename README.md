@@ -8,9 +8,11 @@ large amount of graphics work accumulated before the timer is read, and will thu
 readPixels() can be used to determine when previous rendering commands have been completed,
 but will idle the graphics pipeline and adversely affect application performance.
 
+### Screenshots
 ![](https://habrastorage.org/webt/so/mp/lj/sompljgylzi9y4nqm5cx221or9w.png)
 
 ### Usage
+Add script from [jsdelivr](https://www.jsdelivr.com/package/npm/gl-bench) or [unpkg](https://unpkg.com/gl-bench) on your page and wrap monitored code with benchmark marks
 ```javascript
 let bench = new GlBench();
 function draw(now) {
