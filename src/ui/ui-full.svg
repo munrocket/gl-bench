@@ -1,0 +1,20 @@
+<svg viewBox="0 0 100 70" class="gl-bench">
+
+<rect x="0" y="0" width="100" height="70" rx="25" ry="25" id="gl-bench-rect"
+  style="fill:#999;stroke-width:0;opacity:0.7"/>
+
+<text x="25" y="22" class="gl-bench-text" font-size="0.7em" id="gl-bench-cpu">00%</text>
+<text x="25" y="33" class="gl-bench-text" font-size="0.7em">CPU</text>
+<circle cx="26.5" cy="26.5" r="20" stroke-width="3.5"
+  fill="none" stroke="black" style="opacity:0.4"/>
+
+<circle cx="74.5" cy="26.5" r="20" stroke-width="3.5"
+  fill="none" stroke="black" style="opacity:0.4"/>
+<text x="75" y="22" class="gl-bench-text" font-size="0.7em" id="gl-bench-gpu">00%</text>
+<text x="75" y="33" class="gl-bench-text" font-size="0.7em">GPU</text>
+
+<text x="50" y="59" class="gl-bench-text" font-size=".8em" id="gl-bench-fps">00 FPS</text>
+<circle cx="18" cy="58" r="3" style="opacity:0.4"/>
+<circle cx="82" cy="58" r="3" style="opacity:0.4"/>
+
+</svg>

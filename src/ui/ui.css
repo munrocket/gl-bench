@@ -1,0 +1,22 @@
+#gl-bench-dom {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+}
+
+.gl-bench {
+  position: relative;
+  display: block;
+  margin: 5px;
+  cursor: pointer;
+  width: 100px;
+}
+
+.gl-bench-text {
+  font-family: sans-serif;
+  font-weight: 700;
+  dominant-baseline: middle;
+  text-anchor: middle;
+  opacity: 0.7;
+}

@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: !process.env.CI,
     args: ['--use-gl=egl']
   });
 
@@ -25,6 +25,6 @@ import puppeteer from 'puppeteer';
   });
   await page.goto('http://127.0.0.1:1234/');
 
-  await new Promise(resolve => setTimeout(resolve, 10000));
+  await new Promise(resolve => setTimeout(resolve, 100000));
   process.exit(2);
 })();

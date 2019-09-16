@@ -8,19 +8,11 @@ large amount of graphics work accumulated before the timer is read, and will thu
 readPixels() can be used to determine when previous rendering commands have been completed,
 but will idle the graphics pipeline and adversely affect application performance.
 
+![](https://habrastorage.org/webt/so/mp/lj/sompljgylzi9y4nqm5cx221or9w.png)
+
 ### Usage
 ```javascript
-/* define loggers */
-function fpsLogger(fps) {
-  updateUI(fps);
-}
-function measureLogger(percent) {
-  console.log(percent);
-}
-
-/* init benchmark */
-let bench = new GlBench(fpsLogger, measureLogger);
-
+let bench = new GlBench();
 function draw(now) {
   
   bench.begin();
@@ -33,8 +25,9 @@ requestAnimationFrame(draw);
 ```
 
 ### Examples
-- [webgl fps](https://munrocket.github.io/gl-bench/examples/webgl1-fps.html)
-- [webgl measure](https://munrocket.github.io/gl-bench/examples/webgl1-measure.html)
+- [cpu](https://munrocket.github.io/gl-bench/examples/cpu.html)
+- [webgl1](https://munrocket.github.io/gl-bench/examples/webgl1.html)
+- [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
 
 ### 2do list
 - [x] update()
@@ -42,5 +35,5 @@ requestAnimationFrame(draw);
 - [x] webgl2 support
 - [x] tests
 - [x] measure into loop
-- [ ] own ui
-- [ ] several measurements
+- [x] own ui
+- [ ] several measurements & better ui

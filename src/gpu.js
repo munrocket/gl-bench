@@ -2,7 +2,7 @@ export default class GPU {
 
   constructor(fpsLogger, measureLogger, gl, ext) {
     this.fpsLogger = fpsLogger;
-    this.measureLogger = measureLogger ? measureLogger : () => {};
+    this.measureLogger = measureLogger;
     this.gl = gl;
     this.ext = ext;
 
@@ -31,12 +31,13 @@ export default class GPU {
         
         if (seconds >= 1) {
           const fps = (this.queue[this.queryId-1].frameId - this.queue[0].frameId) / seconds;
+          const avgMeasure = 100 * this.measureAccum / this.elapsedAccum;
           while (seconds >= 1) {
             this.fpsLogger(fps);
-            this.measureLogger(this.measureAccum / this.elapsedAccum);
+            this.measureLogger(avgMeasure);
             seconds--;
           }
-          this.queue.slice(0, this.queryId).forEach(q => this.gl.deleteQuery(q));
+          this.queue.slice(0, this.queryId).forEach(q => this.gl.deleteQuery(q.query));
           this.queue.splice(0, this.queryId);
           this.elapsedAccum = 0;
           this.measureAccum = 0;

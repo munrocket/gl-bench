@@ -1,30 +1,27 @@
-import Bench from '../src/index.js';
+import Bench from '../dist/gl-bench.module.js';
 import { test } from '../node_modules/zora/dist/bundle/module.js';
 
 test('CPU', async (t) => {
   async function fps(t) {
-    let fps = null;
-    const bench = new Bench(log => { fps = log });
+    const bench = new Bench();
     bench.init(document.createElement('p'));
     for(let frameId = 0; frameId < 2; frameId++) {
       bench.update();
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    t.ok(fps !== null, 'fps calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'fps calculated');
   }
   
   async function measure(t) {
-    let fps = null;
-    let measure = null;
-    const bench = new Bench(log => { fps = log }, log => { measure = log });
+    const bench = new Bench();
     bench.init(document.createElement('p'));
     for(let frameId = 0; frameId < 2; frameId++) {
       bench.begin();
       await new Promise(resolve => setTimeout(resolve, 1000));
       bench.end();
     }
-    t.ok(fps !== null, 'fps with measure calculated');
-    t.ok(measure !== null, 'measure calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'fps with measure calculated');
+    t.ok(document.getElementById('gl-bench-cpu').innerHTML != '00%', 'measure calculated');
   }
 
   await Promise.all([fps(t), measure(t)]);
@@ -32,8 +29,7 @@ test('CPU', async (t) => {
 
 test('WebGL1', async (t) => {
   async function fps(t) {
-    let fps = null;
-    const bench = new Bench(log => { fps = log });
+    const bench = new Bench();
     try {
       const canvas = document.getElementsByTagName('canvas')[0];
       bench.init(canvas);
@@ -43,15 +39,15 @@ test('WebGL1', async (t) => {
         bench.update();
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
-    } catch(e) {
+    } catch (e) {
       console.log(e.toString());
     }
-    t.ok(fps !== null, 'standalone fps calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'standalone fps calculated');
   }
 
   async function measure(t) {
     let fps = null;
-    const bench = new Bench(log => { fps = log }, log => { measure = log });
+    const bench = new Bench();
     try {
       const canvas = document.getElementsByTagName('canvas')[1];
       bench.init(canvas);
@@ -62,8 +58,8 @@ test('WebGL1', async (t) => {
     } catch(e) {
       console.log(e.toString());
     }
-    t.ok(fps !== null, 'fps with measure calculated');
-    t.ok(measure !== null, 'measure calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'fps with measure calculated');
+    t.ok(document.getElementById('gl-bench-gpu').innerHTML != '00%', 'measure calculated');
   }
 
   await Promise.all([fps(t), measure(t)]);
@@ -72,7 +68,7 @@ test('WebGL1', async (t) => {
 test('WebGL2', async (t) => {
   async function fps(t) {
     let fps = null;
-    const bench = new Bench(log => { fps = log; });
+    const bench = new Bench();
     const canvas = document.getElementsByTagName('canvas')[2];
     canvas.getContext('webgl2');
     bench.init(canvas);
@@ -82,12 +78,12 @@ test('WebGL2', async (t) => {
       bench.update();
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    t.ok(fps !== null, 'fps calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'fps calculated');
   }
 
   async function measure(t) {
     let fps = null;
-    const bench = new Bench(log => { fps = log }, log => { measure = log });
+    const bench = new Bench();
     try {
       const canvas = document.getElementsByTagName('canvas')[3];
       canvas.getContext('webgl2');
@@ -99,8 +95,8 @@ test('WebGL2', async (t) => {
     } catch(e) {
       console.log(e.toString());
     }
-    t.ok(fps !== null, 'fps with measure calculated');
-    t.ok(measure !== null, 'measure calculated');
+    t.ok(document.getElementById('gl-bench-fps').innerHTML != '00 FPS', 'fps with measure calculated');
+    t.ok(document.getElementById('gl-bench-gpu').innerHTML != '00%', 'measure calculated');
   }
 
   await Promise.all([fps(t), measure(t)]);

@@ -9,12 +9,12 @@
   <style>
     body { margin: 0; background-color: black; position: relative; }
     canvas { display: block; position: absolute; }
-    h2 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
   </style>
 </head>
 <body>
+  <h1>Comparison with Stats.js</h1>
   <canvas id="c"></canvas>
-  <h2>CPU fps</h2>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
@@ -27,35 +27,39 @@
 
   let settings = {
     count: 1000000,
-    'cpu fps': () => window.location.replace("/examples/cpu-fps.html"),
-    'cpu measure': () => window.location.replace("/examples/cpu-measure.html"),
-    'webgl1 fps': () => window.location.replace("/examples/webgl1-fps.html"),
-    'webgl1 measure': () => window.location.replace("/examples/webgl1-measure.html"),
-    'webgl2 fps': () => window.location.replace("/examples/webgl2-fps.html"),
-    'webgl2 measure': () => window.location.replace("/examples/webgl2-measure.html"),
+    'cpu': () => window.location.replace("/examples/cpu.html"),
+    'webgl1': () => window.location.replace("/examples/webgl1.html"),
+    'webgl2': () => window.location.replace("/examples/webgl2.html"),
+    'with statsJs ui': () => window.location.replace("/examples/with-statsJs-ui.html"),
   };
-  var gui = new dat.GUI();
-  gui.add(settings, 'cpu fps');
-  gui.add(settings, 'cpu measure');
-  gui.add(settings, 'webgl1 fps');
-  gui.add(settings, 'webgl1 measure');
-  gui.add(settings, 'webgl2 fps');
-  gui.add(settings, 'webgl2 measure');
+  let gui = new dat.GUI();
+  gui.add(settings, 'cpu');
+  gui.add(settings, 'webgl1');
+  gui.add(settings, 'webgl2');
+  gui.add(settings, 'with statsJs ui');
   gui.add(settings, 'count', 10000, 5000000);
   let prevCount = settings.count;
-
+  
   // ui helper
-  let ui = new Stats();
-  let panel = ui.addPanel(new Stats.Panel( 'FPS', '#b5f', '#111' ));
-  ui.dom.style.cssText = 'position:fixed;top:0;left:0;opacity:0.9;z-index:10000';
-  ui.dom.addEventListener('click', e => { e.stopPropagation() }, true);
-  ui.showPanel(3);
-  document.body.appendChild(ui.dom);
+  let uiHelper = new Stats();
+  let fpsChart = uiHelper.addPanel(new Stats.Panel('glFPS', '#b5f', '#111'));
+  uiHelper.dom.style.cssText = 'position:fixed;top:0;left:80px;opacity:0.9;z-index:10000';
+  uiHelper.dom.addEventListener('click', e => { e.stopPropagation() }, true);
+  uiHelper.showPanel(3);
+  document.body.appendChild(uiHelper.dom);
 
   // initialization
-  let bench = new GlBench( x => panel.update(x, 100));
-  //turn on CPU fallback
-  bench.init(document.body);
+  let loggers = {
+    cpuMeasure: () => {},
+    cpuFps: x => fpsChart.update(x, 100),
+    gpuMeasure: () => {},
+    gpuFps: x => fpsChart.update(x, 100)
+  }
+  let bench = new GlBench(false, loggers);
+
+  // statsJS
+  let statsJs = new Stats();
+  document.body.appendChild(statsJs.dom);
   
   function setup() {
     setupScene();
@@ -76,7 +80,7 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl2' );
+    let context = canvas.getContext( 'webgl' );
     renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
@@ -145,17 +149,16 @@
       prevCount = settings.count;
     }
   }
-
+  
   function draw() {
-    // update bench
-    bench.update();
-    
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
     heavyUpdate();
     renderer.render(scene, camera);
-    
     requestAnimationFrame(draw);
+    
+    bench.update();
+    statsJs.update();
   }
   
   setup();
