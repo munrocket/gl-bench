@@ -1,4 +1,4 @@
-# gl-bench
+# ⏱ gl-bench
 
 WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` extension.
 
@@ -9,7 +9,7 @@ readPixels() can be used to determine when previous rendering commands have been
 but will idle the graphics pipeline and adversely affect application performance.
 
 ### Screenshots
-![](https://habrastorage.org/webt/3o/lg/ui/3olgui2syq98092_92utqr0aidm.png)
+![](https://habrastorage.org/webt/9w/i_/xa/9wi_xayp8q64itavuyzapmd3ugy.png)
 
 ### Usage
 Add script on page from [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js) or [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) to get always updated version and wrap monitored code with begin/end marks
