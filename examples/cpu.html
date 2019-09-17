@@ -19,7 +19,7 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
-<script src="../dist/gl-bench.js"></script>
+<script src="../dist/gl-bench.min.js"></script>
 <script>
   let scene;
   let camera;
@@ -27,10 +27,10 @@
 
   let settings = {
     count: 1000000,
-    'cpu': () => window.location.replace("/examples/cpu.html"),
-    'webgl1': () => window.location.replace("/examples/webgl1.html"),
-    'webgl2': () => window.location.replace("/examples/webgl2.html"),
-    'with statsJs ui': () => window.location.replace("/examples/with-statsJs-ui.html"),
+    'cpu': () => window.location.replace("./cpu.html"),
+    'webgl1': () => window.location.replace("./webgl1.html"),
+    'webgl2': () => window.location.replace("./webgl2.html"),
+    'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
   };
   let gui = new dat.GUI();
   gui.add(settings, 'cpu');

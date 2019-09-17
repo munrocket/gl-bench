@@ -8,13 +8,12 @@ import UIStyle from './ui/ui.css';
 /**
 * WebGL-Benchmark Class
 * @param { Boolean | undefined } isDefaultUI
-* @param { Object | undefined } specificLoggers
+* @param { Object | undefined } newLoggers
 */
 export default class GlBench {
-  constructor(isDefaultUI = true, specificLoggers = null) {
+  constructor(isDefaultUI = true, newLoggers = null) {
     this.isDefaultUI = isDefaultUI;
-    this.isDefaultLoggers = !specificLoggers;
-    this.loggers = specificLoggers ? specificLoggers : {};
+    this.loggers = newLoggers ? { new : newLoggers } : {};
   }
 
   /**
@@ -54,9 +53,10 @@ export default class GlBench {
       }
     }
 
-    // add default ui on page
     if (this.isDefaultUI) {
-      let rootNode = targetCanvas instanceof HTMLCanvasElement ? targetCanvas.parentNode : document.body;
+
+      // add default ui on page
+      const rootNode = targetCanvas instanceof HTMLCanvasElement ? targetCanvas.parentNode : document.body;
       let domNode = document.getElementById('gl-bench-dom');
       if (!domNode) {
         domNode = document.createElement('div');
@@ -69,18 +69,50 @@ export default class GlBench {
       svgNode.innerHTML = ext ? UIFull : UIMin;
       domNode.appendChild(svgNode.content.firstChild);
       rootNode.appendChild(domNode);
-    }
 
-    // set default loggers
-    if (this.isDefaultLoggers && this.isDefaultUI) {
-      function setDomText(id, val) { document.getElementById(id).innerHTML = val; } //<------optimize DOM invoke
-      this.loggers.cpuMeasure = (x) => { setDomText('gl-bench-cpu', x.toFixed(0) + '%') };
-      this.loggers.cpuFps = (x) => { setDomText('gl-bench-fps', x.toFixed(0) + ' FPS') };
+      // set default loggers
+      this.loggers.cpuMeasure = (() => {
+        const cpuUI = document.getElementById('gl-bench-cpu'),
+          cpuProgressUI = document.getElementById('gl-bench-cpu-progress').style;
+        return (percent) => {
+          cpuUI.innerHTML = percent.toFixed(0) + '%';
+          cpuProgressUI.strokeDasharray = percent.toFixed(0) + ', 100';
+          if (this.loggers.new && this.loggers.new.cpuMeasure) this.loggers.new.cpuMeasure(percent);
+        }
+      })();
+      this.loggers.cpuFps = (() => {
+        const fpsUI = document.getElementById('gl-bench-fps'),
+          rectUI = document.getElementById('gl-bench-rect').style;
+        return (fps) => {
+          fpsUI.innerHTML = fps.toFixed(0) + ' FPS';
+          rectUI.fill = 'hsla(' + Math.min(120, Math.max(0, 2.4 * (fps-10))).toFixed(0) + ', 50%, 60%, 0.65)'
+          if (this.loggers.new && this.loggers.new.cpuFps) this.loggers.new.cpuFps(fps);
+        }
+      })();
       if (ext) {
-        this.loggers.gpuMeasure = (x) => { setDomText('gl-bench-gpu', x.toFixed(0) + '%') };
-        this.loggers.gpuFps = (x) => { setDomText('gl-bench-fps', x.toFixed(0) + ' FPS') };
+        this.loggers.gpuMeasure = (() => {
+          const gpuUI = document.getElementById('gl-bench-gpu'),
+            gpuProgressUI = document.getElementById('gl-bench-gpu-progress').style;
+          return (persent) => {
+            gpuUI.innerHTML = persent.toFixed(0) + '%';
+            gpuProgressUI.strokeDasharray = persent.toFixed(0) + ', 100';
+            if (this.loggers.new && this.loggers.new.gpuMeasure) this.loggers.new.gpuMeasure(persent);
+          }
+        })();
+        this.loggers.gpuFps = (() => {
+          const fpsUI = document.getElementById('gl-bench-fps'), //<--------------DRY
+            rectUI = document.getElementById('gl-bench-rect').style;
+          return (fps) => {
+            fpsUI.innerHTML = fps.toFixed(0) + ' FPS';
+            rectUI.fill = 'hsla(' + Math.min(120, Math.max(0, 2.4 * (fps-10))).toFixed(0) + ', 50%, 60%, 0.65)'
+            if (this.loggers.new && this.loggers.new.cpuFps) this.loggers.new.cpuFps(fps);
+          }
+        })();
         this.loggers.cpuFps = () => { };
       }
+      
+    } else if (this.new) {
+      Object.assign(this.loggers, this.new);
     }
 
     // init benchmarks

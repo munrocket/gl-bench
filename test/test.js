@@ -46,7 +46,6 @@ test('WebGL1', async (t) => {
   }
 
   async function measure(t) {
-    let fps = null;
     const bench = new Bench();
     try {
       const canvas = document.getElementsByTagName('canvas')[1];
@@ -67,7 +66,6 @@ test('WebGL1', async (t) => {
 
 test('WebGL2', async (t) => {
   async function fps(t) {
-    let fps = null;
     const bench = new Bench();
     const canvas = document.getElementsByTagName('canvas')[2];
     canvas.getContext('webgl2');
@@ -82,7 +80,6 @@ test('WebGL2', async (t) => {
   }
 
   async function measure(t) {
-    let fps = null;
     const bench = new Bench();
     try {
       const canvas = document.getElementsByTagName('canvas')[3];

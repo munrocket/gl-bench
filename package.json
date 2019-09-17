@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A proper WebGL performance benchmark that uses GPU timers inside",
   "main": "dist/gl-bench.min.js",
   "browser": "dist/gl-bench.js",
