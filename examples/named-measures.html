@@ -13,13 +13,16 @@
   </style>
 </head>
 <body>
-  <h1>WebGL1 measure</h1>
+  <h1>WebGL2 measure</h1>
   <canvas id="c"></canvas>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/examples/js/WebGL.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
-<script src="../dist/gl-bench.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+<script type="module">
+  import GLBench from '../dist/gl-bench.module.js';
+  
   let scene;
   let camera;
   let renderer;
@@ -41,6 +44,7 @@
 
   // GLBench initialization
   let bench = new GLBench();
+  bench.init(document.body);
   
   function setup() {
     setupScene();
@@ -60,9 +64,12 @@
   }
   
   function setupRenderer() {
+    if ( THREE.WEBGL.isWebGL2Available() === false ) {
+      document.body.appendChild( THREE.WEBGL.getWebGL2ErrorMessage() );
+    }
     let canvas = document.getElementById('c');
-    bench.init(canvas);
-    renderer = new THREE.WebGLRenderer( { canvas: canvas } );
+    let context = canvas.getContext( 'webgl2' );
+    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   
@@ -132,17 +139,18 @@
   }
   
   function draw() {
-    //begin measure
     bench.begin();
 
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
-    heavyUpdate();   
-    renderer.render(scene, camera);
-
-    //end measure
     bench.end();
+
+    //bench.begin('B');
+    heavyUpdate();
+    renderer.render(scene, camera);
     requestAnimationFrame(draw);
+    //bench.end('B');
+    
   }
   
   setup();

@@ -1,16 +1,13 @@
 <svg viewBox="0 0 100 52.632" class="gl-bench">
 
-<rect x="0" y="0" width="100" height="52.632" rx="26.5" ry="26.316" id="gl-bench-rect"
-  fill="hsla(120, 50%, 60%, 0.65)"/>
+<rect x="0" y="0" width="100" height="52.632" rx="26.5" ry="26.5" class="gl-bench-rect"/>
 
-<text x="26.5" y="22" class="gl-bench-text" font-size="0.7em" id="gl-bench-cpu">00%</text>
-<text x="26.5" y="34" class="gl-bench-text" font-size="0.7em">CPU</text>
-<circle cx="26.5" cy="26.5" r="20" stroke-width="3.5"
-  fill="none" stroke="black" style="opacity:0.4"/>
-<path d="M21.09 37.0 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 -15.9155
-  0 0 1 0 31.831" fill="none" stroke="black" stroke-width="2.6" opacity="0.5"
-  transform="scale(1.25663)" stroke-dasharray="2, 100" id="gl-bench-cpu-progress"/>
+<text x="26.5" y="22" class="gl-bench-text gl-bench-cpu">00%</text>
+<text x="26.5" y="34" class="gl-bench-text">CPU</text>
+<circle cx="26.5" cy="26.5" r="20" stroke-width="3.5" class="gl-bench-circle"/>
+<path d="M21.0 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831"
+  class="gl-bench-progress gl-bench-cpu-progress"/>
 
-<text x="74" y="28" class="gl-bench-text" font-size="0.8em" id="gl-bench-fps">00 FPS</text>
+<text x="74" y="28" font-size="0.8em" class="gl-bench-text gl-bench-fps">00 FPS</text>
 
 </svg>

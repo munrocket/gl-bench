@@ -6,14 +6,14 @@ export default [
   {
     input: 'src/index',
     output: [
-      { file: pkg.browser, name: 'GlBench', format: 'iife' },
-      { file: pkg.module, name: 'GlBench', format: 'module', sourcemap: 'inline' },
+      { file: pkg.browser, name: 'GLBench', format: 'iife' },
+      { file: pkg.module, name: 'GLBench', format: 'module', sourcemap: 'inline' },
     ],
     plugins: [ string({ include: ['**/*.svg', '**/*.css'] }) ]
   },
   {
     input: 'src/index',
-    output: { file: pkg.main, name: 'GlBench', format: 'iife' },
+    output: { file: pkg.main, name: 'GLBench', format: 'iife' },
     plugins: [ string({ include: ['**/*.svg', '**/*.css'] }), closure() ]
   }
 ]

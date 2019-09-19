@@ -7,56 +7,34 @@ import UIStyle from './ui/ui.css';
 
 /**
 * WebGL-Benchmark Class
-* @param { Boolean | undefined } isDefaultUI
 * @param { Object | undefined } newLoggers
+* @param { boolean | undefined } isDefaultUI
 */
-export default class GlBench {
-  constructor(isDefaultUI = true, newLoggers = null) {
+export default class GLBench {
+  constructor(newLoggers = null, isDefaultUI = true) {
     this.isDefaultUI = isDefaultUI;
     this.loggers = newLoggers ? { new : newLoggers } : {};
   }
 
   /**
-   * Expicit initialization
-   * @param { HTMLCanvasElement | undefined } targetCanvas 
+   * Initialization
+   * @param { WebGLRenderingContext | WebGL2RenderingContext | HTMLCanvasElement } target 
    */
-  init(targetCanvas = null) {
+  init(target) {
 
-    // chose biggest canvas if not specified
-    if (!targetCanvas) {
-      let cs = document.getElementsByTagName('canvas');
-      for (let i = 0; i < cs.length; i++) {
-        if (i == 0 || targetCanvas.width * targetCanvas.height < cs[i].width * cs[i].height) {
-          targetCanvas = cs[i];
-        }
-      }
-    }
-
-    // polyfill for webgl1 api
     let ext, gl;
-    if (targetCanvas instanceof HTMLCanvasElement) {
-      gl = targetCanvas.getContext('webgl') || targetCanvas.getContext('experimental-webgl');
-      if (gl) {
-        ext = gl.getExtension('EXT_disjoint_timer_query');
-        if (ext) {
-          gl.createQuery = ext.createQueryEXT.bind(ext);
-          gl.deleteQuery = ext.deleteQueryEXT.bind(ext);
-          gl.beginQuery = ext.beginQueryEXT.bind(ext);
-          gl.endQuery = ext.endQueryEXT.bind(ext);
-          gl.getQueryParameter = ext.getQueryObjectEXT.bind(ext);
-          gl.QUERY_RESULT_AVAILABLE = ext.QUERY_RESULT_AVAILABLE_EXT;
-          gl.QUERY_RESULT = ext.QUERY_RESULT_EXT;
-        }
-      } else {
-        gl = targetCanvas.getContext('webgl2');
-        ext = gl ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null;
-      }
+    if (target instanceof HTMLCanvasElement) target = target.getContext('webgl')
+      || target.getContext('experimental-webgl') || target.getContext('webgl2');
+    if (target instanceof WebGLRenderingContext) {
+      gl = target;
+      ext = gl.getExtension('EXT_disjoint_timer_query');
+    } else if (target instanceof WebGL2RenderingContext) {
+      gl = target;
+      ext = gl.getExtension('EXT_disjoint_timer_query_webgl2');
     }
 
     if (this.isDefaultUI) {
-
-      // add default ui on page
-      const rootNode = targetCanvas instanceof HTMLCanvasElement ? targetCanvas.parentNode : document.body;
+      const rootNode = target instanceof HTMLCanvasElement ? target.parentNode : document.body;
       let domNode = document.getElementById('gl-bench-dom');
       if (!domNode) {
         domNode = document.createElement('div');
@@ -67,93 +45,90 @@ export default class GlBench {
       }
       let svgNode = document.createElement('template');
       svgNode.innerHTML = ext ? UIFull : UIMin;
-      domNode.appendChild(svgNode.content.firstChild);
-      rootNode.appendChild(domNode);
+      svgNode = svgNode.content.firstChild;
 
-      // set default loggers
       this.loggers.cpuMeasure = (() => {
-        const cpuUI = document.getElementById('gl-bench-cpu'),
-          cpuProgressUI = document.getElementById('gl-bench-cpu-progress').style;
-        return (percent) => {
-          cpuUI.innerHTML = percent.toFixed(0) + '%';
-          cpuProgressUI.strokeDasharray = percent.toFixed(0) + ', 100';
+        const cpuUIs = svgNode.getElementsByClassName('gl-bench-cpu'),
+          cpuProgressUIs = svgNode.getElementsByClassName('gl-bench-cpu-progress');
+        return (percent, i) => {
+          cpuUIs[i].innerHTML = percent.toFixed(0) + '%';
+          cpuProgressUIs[i].style.strokeDasharray = percent.toFixed(0) + ', 100';
           if (this.loggers.new && this.loggers.new.cpuMeasure) this.loggers.new.cpuMeasure(percent);
         }
       })();
       this.loggers.cpuFps = (() => {
-        const fpsUI = document.getElementById('gl-bench-fps'),
-          rectUI = document.getElementById('gl-bench-rect').style;
-        return (fps) => {
-          fpsUI.innerHTML = fps.toFixed(0) + ' FPS';
-          rectUI.fill = 'hsla(' + Math.min(120, Math.max(0, 2.4 * (fps-10))).toFixed(0) + ', 50%, 60%, 0.65)'
+        const fpsUIs = svgNode.getElementsByClassName('gl-bench-fps'),
+          rectUIs = svgNode.getElementsByClassName('gl-bench-rect');
+        return (fps, i) => {
+          fpsUIs[i].innerHTML = fps.toFixed(0) + ' FPS';
+          rectUIs[i].style.fill = 'hsla(' + Math.min(120, Math.max(0, 2.182 * (fps-5))).toFixed(0) + ', 50%, 60%, 0.65)'
           if (this.loggers.new && this.loggers.new.cpuFps) this.loggers.new.cpuFps(fps);
         }
       })();
       if (ext) {
         this.loggers.gpuMeasure = (() => {
-          const gpuUI = document.getElementById('gl-bench-gpu'),
-            gpuProgressUI = document.getElementById('gl-bench-gpu-progress').style;
-          return (persent) => {
-            gpuUI.innerHTML = persent.toFixed(0) + '%';
-            gpuProgressUI.strokeDasharray = persent.toFixed(0) + ', 100';
-            if (this.loggers.new && this.loggers.new.gpuMeasure) this.loggers.new.gpuMeasure(persent);
+          const gpuUIs = svgNode.getElementsByClassName('gl-bench-gpu'),
+            gpuProgressUIs = svgNode.getElementsByClassName('gl-bench-gpu-progress');
+          return (percent, i) => {
+            gpuUIs[i].innerHTML = percent.toFixed(0) + '%';
+            gpuProgressUIs[i].style.strokeDasharray = percent.toFixed(0) + ', 100';
+            if (this.loggers.new && this.loggers.new.gpuMeasure) this.loggers.new.gpuMeasure(percent);
           }
         })();
         this.loggers.gpuFps = (() => {
-          const fpsUI = document.getElementById('gl-bench-fps'), //<--------------DRY
-            rectUI = document.getElementById('gl-bench-rect').style;
-          return (fps) => {
-            fpsUI.innerHTML = fps.toFixed(0) + ' FPS';
-            rectUI.fill = 'hsla(' + Math.min(120, Math.max(0, 2.4 * (fps-10))).toFixed(0) + ', 50%, 60%, 0.65)'
+          const fpsUIs = svgNode.getElementsByClassName('gl-bench-fps'), //<--------------DRY
+            rectUIs = svgNode.getElementsByClassName('gl-bench-rect');
+          return (fps, i) => {
+            fpsUIs[i].innerHTML = fps.toFixed(0) + ' FPS';
+            rectUIs[i].style.fill = 'hsla(' + Math.min(120, Math.max(0, 2.182 * (fps-5))).toFixed(0) + ', 50%, 60%, 0.65)'
             if (this.loggers.new && this.loggers.new.cpuFps) this.loggers.new.cpuFps(fps);
           }
         })();
         this.loggers.cpuFps = () => { };
       }
-      
-    } else if (this.new) {
-      Object.assign(this.loggers, this.new);
+      domNode.appendChild(svgNode);
+      rootNode.appendChild(domNode);
+    } else if (this.loggers.new) {
+      Object.assign(this.loggers, this.loggers.new);
     }
 
-    // init benchmarks
     this.cpu = new CPU(this.loggers.cpuFps, this.loggers.cpuMeasure);
-    this.gpu = (ext) ? new GPU(this.loggers.gpuFps, this.loggers.gpuMeasure, gl, ext) : null;
+    this.gpu = (ext) ? new GPU(gl, ext, this.loggers.gpuFps, this.loggers.gpuMeasure) : null;
   }
 
   /**
-   * Begin bottleneck measurement
+   * Begin named measurement
+   * @param { string } name
    */
-  begin() {
+  begin(name) {
     if (this.gpu) {
-      this.gpu.begin();
-      this.cpu.begin();
+      this.cpu.begin(name);
+      this.gpu.begin(name);
     } else if (this.cpu) {
-      this.cpu.begin();
+      this.cpu.begin(name);
     } else {
       this.init();
-      this.begin();
+      this.begin(name);
     }
   }
 
   /**
-   * End bottleneck measurement
+   * End named measurement
+   * @param { string } name
    */
-  end() {
+  end(name) {
     if (this.gpu) {
-      this.gpu.end();
-      this.cpu.end();
+      this.cpu.end(name);
+      this.gpu.end(name);
     } else if (this.cpu) {
-      this.cpu.end();
+      this.cpu.end(name);
     }
   }
 
   /**
-   * Nothing interesting here, only fps
+   * Only fps update
    */
   update() {
     this.begin();
-    if (this.gpu) {
-      this.cpu.fpsLogger = () => {};
-    }
   }
 }

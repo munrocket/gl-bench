@@ -55,7 +55,7 @@
     gpuMeasure: () => {},
     gpuFps: x => fpsChart.update(x, 100)
   }
-  let bench = new GlBench(false, loggers);
+  let bench = new GLBench(loggers, false);
 
   // statsJS
   let statsJs = new Stats();
@@ -80,8 +80,9 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl' );
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+    bench.init(context);
+    if (bench.gpu) bench.cpu.fpsLogger = () => {};
+    renderer = new THREE.WebGLRenderer( { canvas: canvas } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   

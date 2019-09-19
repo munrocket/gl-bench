@@ -21,7 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
 <script type="module">
-  import GlBench from '../dist/gl-bench.module.js';
+  import GLBench from '../dist/gl-bench.module.js';
   
   let scene;
   let camera;
@@ -32,18 +32,20 @@
     'cpu': () => window.location.replace("./cpu.html"),
     'webgl1': () => window.location.replace("./webgl1.html"),
     'webgl2': () => window.location.replace("./webgl2.html"),
+    //'named measures': () => window.location.replace("./named-measures.html"),
     'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
   };
   let gui = new dat.GUI();
   gui.add(settings, 'cpu');
   gui.add(settings, 'webgl1');
   gui.add(settings, 'webgl2');
+  //gui.add(settings, 'named measures');
   gui.add(settings, 'with statsJs ui');
   gui.add(settings, 'count', 10000, 5000000);
   let prevCount = settings.count;
 
-  // GlBench initialization
-  let bench = new GlBench();
+  // GLBench initialization
+  let bench = new GLBench();
   
   function setup() {
     setupScene();
@@ -68,6 +70,7 @@
     }
     let canvas = document.getElementById('c');
     let context = canvas.getContext( 'webgl2' );
+    bench.init(context);
     renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }

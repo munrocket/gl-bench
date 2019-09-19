@@ -1,6 +1,6 @@
 # ⏱ gl-bench
 
-WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` extension.
+Proper WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` extension.
 
 ### Motivation
 CPU timers are not synchronized with the graphics rendering pipeline and not guarantee the completion of a potentially
@@ -9,14 +9,17 @@ readPixels() can be used to determine when previous rendering commands have been
 but will idle the graphics pipeline and adversely affect application performance.
 
 ### Screenshots
-![](https://habrastorage.org/webt/9w/i_/xa/9wi_xayp8q64itavuyzapmd3ugy.png)
+![](https://habrastorage.org/webt/sj/_c/kl/sj_cklrwga2mhfzl6lt0cwvnhpe.png)
 
 ### Usage
-Add script on page from [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js) or [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) to get always updated version and wrap monitored code with begin/end marks
+Add script on page from [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js) or [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
-let bench = new GlBench();
-function draw(now) {
-  
+let bench = new GLBench();
+let contextOrCanvas = document.getElementsByTagName('canvas')[0];
+bench.init(contextOrCanvas);
+
+function draw(now) {  
+
   bench.begin();
   // monitored code
   bench.end();
@@ -36,6 +39,7 @@ requestAnimationFrame(draw);
 - [x] examples
 - [x] webgl2 support
 - [x] tests
-- [x] measure into loop
+- [x] begin()/end()
 - [x] own ui
-- [ ] several measurements
+- [ ] named measurements
+- [ ] refactor, ms by click, better ui
