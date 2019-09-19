@@ -42,4 +42,4 @@ requestAnimationFrame(draw);
 - [x] begin()/end()
 - [x] own ui
 - [ ] named measurements
-- [ ] refactor, ms by click, better ui
+- [ ] ms by click, calc in one frame, better ui

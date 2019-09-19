@@ -19,7 +19,7 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js"></script>
+<script src="../dist/gl-bench.js"></script>
 <script>
   let scene;
   let camera;
@@ -49,13 +49,7 @@
   document.body.appendChild(uiHelper.dom);
 
   // initialization
-  let loggers = {
-    cpuMeasure: () => {},
-    cpuFps: x => fpsChart.update(x, 100),
-    gpuMeasure: () => {},
-    gpuFps: x => fpsChart.update(x, 100)
-  }
-  let bench = new GLBench(loggers, false);
+  let bench = new GLBench({ fpsLogger: x => fpsChart.update(x, 100)}, false);
 
   // statsJS
   let statsJs = new Stats();
@@ -80,8 +74,7 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    bench.init(context);
-    if (bench.gpu) bench.cpu.fpsLogger = () => {};
+    bench.init(canvas);
     renderer = new THREE.WebGLRenderer( { canvas: canvas } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }

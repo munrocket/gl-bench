@@ -69,7 +69,8 @@
     }
     let canvas = document.getElementById('c');
     let context = canvas.getContext( 'webgl2' );
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+    bench.init(context);
+    renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   
@@ -139,17 +140,17 @@
   }
   
   function draw() {
-    bench.begin();
+    bench.begin('A');
 
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
-    bench.end();
+    bench.end('A');
 
-    //bench.begin('B');
+    bench.begin('B');
     heavyUpdate();
     renderer.render(scene, camera);
     requestAnimationFrame(draw);
-    //bench.end('B');
+    bench.end('B');
     
   }
   
