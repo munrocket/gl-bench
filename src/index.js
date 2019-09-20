@@ -70,12 +70,8 @@ export default class GLBench {
       );
     }
 
-    if (!ext) {
-      this.cpu = new CPU(this.fpsLogger, this.cpuLogger);
-    } else {
-      this.cpu = new CPU(null, this.cpuLogger);
-      this.gpu = new GPU(webglContext, ext, this.fpsLogger, this.gpuLogger);
-    }
+    this.cpu = new CPU(!ext ? this.fpsLogger : 0, this.cpuLogger);
+    if (ext) this.gpu = new GPU(webglContext, ext, this.fpsLogger, this.gpuLogger);
   }
 
   /**
@@ -101,14 +97,5 @@ export default class GLBench {
     const nameId = this.names.indexOf(name);
     this.cpu.end(nameId);
     if (this.gpu) this.gpu.end(nameId);
-  }
-
-  /**
-   * One line update
-   */
-  update() {
-    if (!this.firstUpdate) this.firstUpdate = true;
-    else this.end();
-    this.begin();
   }
 }

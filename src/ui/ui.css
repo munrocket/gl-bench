@@ -14,7 +14,6 @@
   font-family: sans-serif;
   font-weight: 700;
   font-size: 0.7em;
-  dominant-baseline: middle;
   text-anchor: middle;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -30,7 +29,6 @@
   stroke-width: 2.6;
   opacity: 0.5;  
   transform: scale(1.25663);
-  stroke-dasharray: 0, 100;
 }
 
 .gl-circle {

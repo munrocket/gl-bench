@@ -13,12 +13,11 @@
   </style>
 </head>
 <body>
-  <h1>Comparison with Stats.js</h1>
+  <h1>New loggers</h1>
   <canvas id="c"></canvas>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="../dist/gl-bench.js"></script>
   <script>
     let scene;
@@ -49,21 +48,20 @@
     ut.open();
     it.open();
     let prevCount = settings.count;
-    
-    // ui helper
-    let uiHelper = new Stats();
-    let fpsChart = uiHelper.addPanel(new Stats.Panel('glFPS', '#b5f', '#111'));
-    uiHelper.dom.style.cssText = 'position:fixed;top:0;left:80px;opacity:0.9;z-index:10000';
-    uiHelper.dom.addEventListener('click', e => { e.stopPropagation() }, true);
-    uiHelper.showPanel(3);
-    document.body.appendChild(uiHelper.dom);
 
-    // initialization
-    let bench = new GLBench({ fpsLogger: x => fpsChart.update(x, 100)});
+    function consoleLog(text) {
+      const p = document.createElement('div');
+      p.appendChild(document.createTextNode(text))
+      p.style.color = 'white';
+      document.getElementById('gl-bench-dom').appendChild(p);
+    }
 
-    // statsJS
-    let statsJs = new Stats();
-    document.body.appendChild(statsJs.dom);
+    // GLBench initialization
+    let bench = new GLBench({
+      fpsLogger: (fps, frametime, i) => consoleLog('fps=' + fps.toFixed(4) + ', ms=' + frametime.toFixed(4) + ', id=' + i),
+      cpuLogger: (cpu, ms, i) => consoleLog('cpu=' + cpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i),
+      gpuLogger: (gpu, ms, i) => consoleLog('cpu=' + gpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i)
+    });
     
     function setup() {
       setupScene();
@@ -85,8 +83,8 @@
     function setupRenderer() {
       let canvas = document.getElementById('c');
       let context = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
-      bench.init(context, 0);
-      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+      bench.init(context);
+      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context} );
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
@@ -156,14 +154,17 @@
     }
     
     function draw() {
+      //begin measure
+      bench.begin();
+
       movePosition(camera.position, 0);
       camera.lookAt(scene.position);
-      heavyCpuUpdate();
+      heavyCpuUpdate();   
       renderer.render(scene, camera);
+
+      //end measure
+      bench.end();
       requestAnimationFrame(draw);
-      
-      bench.begin(); bench.end();
-      statsJs.update();
     }
     
     setup();

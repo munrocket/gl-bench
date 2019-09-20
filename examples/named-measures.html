@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Integration Testing</title>
-  <link rel="icon" href="data:;base64,=">
+  <title>E2E Testing</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <style>
     body { margin: 0; background-color: black; position: relative; }
     canvas { display: block; position: absolute; }
@@ -15,148 +15,154 @@
 <body>
   <h1>Named measures</h1>
   <canvas id="c"></canvas>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
-<script src="../dist/gl-bench.js"></script>
-<script>
-  let scene;
-  let camera;
-  let renderer;
 
-  let settings = {
-    count: 1000000,
-    'cpu': () => window.location.replace("./cpu.html"),
-    'webgl1': () => window.location.replace("./webgl1.html"),
-    'webgl2': () => window.location.replace("./webgl2.html"),
-    'named measures': () => window.location.replace("./named-measures.html"),
-    'new loggers': () => window.location.replace("./console-loggers.html"),
-    'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
-  };
-  let gui = new dat.GUI();
-  gui.add(settings, 'cpu');
-  gui.add(settings, 'webgl1');
-  gui.add(settings, 'webgl2');
-  gui.add(settings, 'named measures');
-  gui.add(settings, 'new loggers');
-  gui.add(settings, 'with statsJs ui');
-  gui.add(settings, 'count', 10000, 5000000);
-  let prevCount = settings.count;
+  <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+  <script src="../dist/gl-bench.js"></script>
+  <script>
+    let scene;
+    let camera;
+    let renderer;
 
-  // GLBench initialization
-  let bench = new GLBench();
+    let settings = {
+      count: 1000000,
+      'unit testing': () => window.location.replace("../test/index.html"),
+      'cpu': () => window.location.replace("./cpu.html"),
+      'webgl': () => window.location.replace("./webgl.html"),
+      'webgl2': () => window.location.replace("./webgl2.html"),
+      'named measures': () => window.location.replace("./named-measures.html"),
+      'new loggers': () => window.location.replace("./new-loggers.html"),
+      'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
+    };
+    let gui = new dat.GUI();
+    let ut = gui.addFolder('Unit testing')
+    ut.add(settings, 'unit testing');
+    let it = gui.addFolder('E2E testing');
+    it.add(settings, 'cpu');
+    it.add(settings, 'webgl');
+    it.add(settings, 'webgl2');
+    it.add(settings, 'named measures');
+    it.add(settings, 'new loggers');
+    it.add(settings, 'with statsJs ui');
+    gui.add(settings, 'count', 10000, 5000000);
+    ut.open();
+    it.open();
+    let prevCount = settings.count;
 
-  function setup() {
-    setupScene();
-    setupCamera();
-    setupRenderer();
-    setupParticles();
-    setupEventListeners();
-  }
-  
-  function setupScene() {
-    scene = new THREE.Scene();
-  }
-  
-  function setupCamera() {
-    let res = window.innerWidth / window.innerHeight;
-    camera = new THREE.PerspectiveCamera(70, res, 1, 10000);
-  }
-  
-  function setupRenderer() {
-    let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl' );
-    bench.init(context, 2);
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-  
-  function setupParticles() {
-    let geometry = new THREE.Geometry();
-    addLorenzVertices(geometry);
-    let color = new THREE.Color(0xbb00ff);
-    for (let i = 0; i < settings.count; i++) {
-      geometry.colors.push(color);
-    }
-    let material = new THREE.PointsMaterial({ size: 1, vertexColors: THREE.VertexColors, depthTest: false, opacity: 0.3, sizeAttenuation: false, transparent: true });
-    let mesh = new THREE.Points(geometry, material);
-    scene.add(mesh);
-  }
-  
-  function setupEventListeners() {
-    window.addEventListener("resize", onWindowResize);
-  }
-  
-  function addLorenzVertices(geometry) {
-    let x0 = 0.1;
-    let y0 = 0;
-    let z0 = 0; 
-    let x1, y1, z1;
-    let h = 0.001;
-    let a = 10.0;
-    let b = 28.0;
-    let c = 8.0 / 3.0;
-  
-    for (let i = 0; i < settings.count; i++) {
-      x1 = x0 + h * a * (y0 - x0);
-      y1 = y0 + h * (x0 * (b - z0) - y0);
-      z1 = z0 + h * (x0 * y0 - c * z0);
-      x0 = x1;
-      y0 = y1;
-      z0 = z1;
-      let vertex = new THREE.Vector3(
-        x0, 
-        y0, 
-        z0-24);
-      geometry.vertices.push(vertex);
-    }
-  }
-  
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-  
-  function movePosition(position, phase) {
-    let r = 40;
-    let θ = new Date() * 0.0005 + 10;
-    let φ = new Date() * 0.0005;    
-    let x = r * Math.sin(φ + phase) * Math.cos(θ + phase);
-    let y = r * Math.sin(φ + phase) * Math.sin(θ + phase);
-    let z = r * Math.cos(φ + phase);
-    position.set(x, y, z);
-  }
+    // GLBench initialization
+    let bench = new GLBench();
 
-  function heavyCpuUpdate() {
-    if (prevCount != settings.count) {
-      scene.remove(scene.children[0]);
+    function setup() {
+      setupScene();
+      setupCamera();
+      setupRenderer();
       setupParticles();
-      prevCount = settings.count;
+      setupEventListeners();
     }
-    let val = 0;
-    for (let i = 0; i < 5 * settings.count; i++) {
-      val += i*i;
-    }
-    settings.val = val;
-  }
-  
-  function draw() {
-
-    bench.begin('heavy cpu');
-    movePosition(camera.position, 0);
-    camera.lookAt(scene.position);
-    heavyCpuUpdate();
-    bench.end('heavy cpu');
     
-    bench.begin('heavy gpu');
-    renderer.render(scene, camera);
-    requestAnimationFrame(draw);
-    bench.end('heavy gpu');
-  }
-  
-  setup();
-  draw();
-</script>
+    function setupScene() {
+      scene = new THREE.Scene();
+    }
+    
+    function setupCamera() {
+      let res = window.innerWidth / window.innerHeight;
+      camera = new THREE.PerspectiveCamera(70, res, 1, 10000);
+    }
+    
+    function setupRenderer() {
+      let canvas = document.getElementById('c');
+      let context = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
+      bench.init(context, 2); // <-- two ui boxes
+      renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    function setupParticles() {
+      let geometry = new THREE.Geometry();
+      addLorenzVertices(geometry);
+      let color = new THREE.Color(0xbb00ff);
+      for (let i = 0; i < settings.count; i++) {
+        geometry.colors.push(color);
+      }
+      let material = new THREE.PointsMaterial({ size: 1, vertexColors: THREE.VertexColors, depthTest: false, opacity: 0.3, sizeAttenuation: false, transparent: true });
+      let mesh = new THREE.Points(geometry, material);
+      scene.add(mesh);
+    }
+    
+    function setupEventListeners() {
+      window.addEventListener("resize", onWindowResize);
+    }
+    
+    function addLorenzVertices(geometry) {
+      let x0 = 0.1;
+      let y0 = 0;
+      let z0 = 0; 
+      let x1, y1, z1;
+      let h = 0.001;
+      let a = 10.0;
+      let b = 28.0;
+      let c = 8.0 / 3.0;
+    
+      for (let i = 0; i < settings.count; i++) {
+        x1 = x0 + h * a * (y0 - x0);
+        y1 = y0 + h * (x0 * (b - z0) - y0);
+        z1 = z0 + h * (x0 * y0 - c * z0);
+        x0 = x1;
+        y0 = y1;
+        z0 = z1;
+        let vertex = new THREE.Vector3(
+          x0, 
+          y0, 
+          z0-24);
+        geometry.vertices.push(vertex);
+      }
+    }
+    
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    function movePosition(position, phase) {
+      let r = 40;
+      let θ = new Date() * 0.0005 + 10;
+      let φ = new Date() * 0.0005;    
+      let x = r * Math.sin(φ + phase) * Math.cos(θ + phase);
+      let y = r * Math.sin(φ + phase) * Math.sin(θ + phase);
+      let z = r * Math.cos(φ + phase);
+      position.set(x, y, z);
+    }
+
+    function heavyCpuUpdate() {
+      if (prevCount != settings.count) {
+        scene.remove(scene.children[0]);
+        setupParticles();
+        prevCount = settings.count;
+      }
+      let val = 0;
+      for (let i = 0; i < 5 * settings.count; i++) {
+        val += i*i;
+      }
+      settings.val = val;
+    }
+    
+    function draw() {
+
+      bench.begin('heavy cpu');
+      movePosition(camera.position, 0);
+      camera.lookAt(scene.position);
+      heavyCpuUpdate();
+      bench.end('heavy cpu');
+      
+      bench.begin('heavy gpu');
+      renderer.render(scene, camera);
+      requestAnimationFrame(draw);
+      bench.end('heavy gpu');
+    }
+    
+    setup();
+    draw();
+  </script>
+</body>
 </html>
