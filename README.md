@@ -29,8 +29,9 @@ function draw(now) {
 requestAnimationFrame(draw);
 ```
 
-Also you can compare two named measures and find bottleneck
-<img align="right" src="https://habrastorage.org/webt/dj/7t/rc/dj7trcda4kry1k0btsxc7kbyn0k.png"/>
+### Analysing performance
+You can compare two named measures and find bottleneck
+<img align="right" src="https://habrastorage.org/webt/c8/kj/uo/c8kjuoduhabhy9b71pwnhkpdwhy.png"/>
 
 ```javascript
 let bench = new GLBench();
@@ -68,4 +69,4 @@ requestAnimationFrame(draw);
 - [x] named measures
 - [ ] further improvements
 
-[//]: # refactor gpu, workers, better ui, in one frame, emulate EXT
+[//]: # (refactor gpu, workers, better ui, in one frame, emulate EXT)
