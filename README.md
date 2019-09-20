@@ -15,8 +15,8 @@ but will idle the graphics pipeline and adversely affect application performance
 Add script on page from [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js) or [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
 let bench = new GLBench();
-let contextOrCanvas = document.getElementsByTagName('canvas')[0];
-bench.init(contextOrCanvas);
+let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
+bench.init(gl);
 
 function draw(now) {  
 
@@ -41,5 +41,5 @@ requestAnimationFrame(draw);
 - [x] tests
 - [x] begin()/end()
 - [x] own ui
-- [ ] named measurements
-- [ ] ms by click, calc in one frame, better ui
+- [ ] named measures
+- [ ] in one frame, better ui

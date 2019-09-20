@@ -9,7 +9,7 @@ export default class CPU {
     this.measureMode = 0;
 
     this.zerotime = null;
-    this.timestamp = 0;
+    this.namedBegins = [];
   }
 
   now() {
@@ -19,39 +19,38 @@ export default class CPU {
   begin(nameId) {
     if (nameId === 0) this.frameId++;
     if (this.namedAccums.length <= nameId) this.namedAccums.push(0);
+    if (this.namedBegins.length <= nameId) this.namedBegins.push(0);
 
-    this.timestamp = this.now();
+    this.namedBegins[nameId] = this.now();
     if (this.zerotime == null) {
-      this.zerotime = this.timestamp;
+      this.zerotime = this.namedBegins[nameId];
     } else {
-      const totalAccum = this.timestamp - this.zerotime;
+      const totalAccum = this.namedBegins[nameId] - this.zerotime;
       let seconds = totalAccum / 1e3;
       if (seconds >= 1) {
         const fps = this.frameId / seconds;
-        const averageMeasures = this.namedAccums.map(accum => 100 * accum / totalAccum);
-        while (seconds >= 1) {
-          for (let i = 0; i < this.namedAccums.length; i++) {
-            this.fpsLogger(fps, i);
-            this.cpuLogger(averageMeasures[i], i);
-          }
-          seconds--;
+        const frametime = totalAccum / this.frameId;
+        for (let i = 0; i < this.namedAccums.length; i++) {
+          const accum = this.namedAccums[i];
+          const cpu = accum / totalAccum * 100;
+          const ms = accum / this.frameId;
+          this.fpsLogger(fps, frametime, i);
+          this.cpuLogger(cpu, ms, i);
         }
         let j = this.namedAccums.length;
         while (j--) this.namedAccums[j] = 0;
         this.frameId = 0;
-        this.zerotime = this.timestamp;
+        this.zerotime = this.namedBegins[nameId];
       }
     }
     this.measureMode += 1 << nameId;
   }
 
   end(nameId) {
-    const dt = this.now() - this.timestamp;
+    const dt = this.now() - this.namedBegins[nameId];
     const binaryFlags = this.measureMode.toString(2);
     for (let i = 0; i < binaryFlags.length; i++) {
-      if (binaryFlags[i] == '1') {
-        this.namedAccums[binaryFlags.length - i - 1] += dt;
-      }
+      if (binaryFlags[i] == '1') this.namedAccums[binaryFlags.length - i - 1] += dt;
     }
     this.measureMode -= 1 << nameId;
   }

@@ -65,8 +65,7 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl2' );
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+    renderer = new THREE.WebGLRenderer( { canvas: canvas } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   

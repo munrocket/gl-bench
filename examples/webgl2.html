@@ -32,7 +32,7 @@
     'cpu': () => window.location.replace("./cpu.html"),
     'webgl1': () => window.location.replace("./webgl1.html"),
     'webgl2': () => window.location.replace("./webgl2.html"),
-    //'named measures': () => window.location.replace("./named-measures.html"),
+    'named measures': () => window.location.replace("./named-measures.html"),
     'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
   };
   let gui = new dat.GUI();
@@ -149,7 +149,7 @@
     renderer.render(scene, camera);
     requestAnimationFrame(draw);
 
-    bench.end();    
+    bench.end();
   }
   
   setup();

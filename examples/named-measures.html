@@ -20,8 +20,9 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/examples/js/WebGL.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+<script src="../dist/gl-bench.js"></script>
 <script type="module">
-  import GLBench from '../dist/gl-bench.module.js';
+  //import GLBench from '../dist/gl-bench.module.js';
   
   let scene;
   let camera;
@@ -44,8 +45,7 @@
 
   // GLBench initialization
   let bench = new GLBench();
-  bench.init(document.body);
-  
+
   function setup() {
     setupScene();
     setupCamera();
@@ -68,8 +68,8 @@
       document.body.appendChild( THREE.WEBGL.getWebGL2ErrorMessage() );
     }
     let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl2' );
-    bench.init(context);
+    let context = canvas.getContext( 'webgl' );
+    bench.init(context, 2);
     renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
@@ -141,17 +141,16 @@
   
   function draw() {
     bench.begin('A');
+    bench.begin('B');
 
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
-    bench.end('A');
-
-    bench.begin('B');
     heavyUpdate();
     renderer.render(scene, camera);
     requestAnimationFrame(draw);
+
     bench.end('B');
-    
+    bench.end('A');
   }
   
   setup();

@@ -3,6 +3,7 @@
   display: block;
   margin: 5px;
   width: 100px;
+  cursor: pointer;
 }
 
 .gl-box {

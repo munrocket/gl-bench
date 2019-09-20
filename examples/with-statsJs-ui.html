@@ -49,7 +49,7 @@
   document.body.appendChild(uiHelper.dom);
 
   // initialization
-  let bench = new GLBench({ fpsLogger: x => fpsChart.update(x, 100)}, false);
+  let bench = new GLBench({ fpsLogger: x => fpsChart.update(x, 100)});
 
   // statsJS
   let statsJs = new Stats();
@@ -74,7 +74,7 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    bench.init(canvas);
+    bench.init(canvas, 0);
     renderer = new THREE.WebGLRenderer( { canvas: canvas } );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
