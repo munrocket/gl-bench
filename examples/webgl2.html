@@ -33,13 +33,15 @@
     'webgl1': () => window.location.replace("./webgl1.html"),
     'webgl2': () => window.location.replace("./webgl2.html"),
     'named measures': () => window.location.replace("./named-measures.html"),
+    'new loggers': () => window.location.replace("./console-loggers.html"),
     'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
   };
   let gui = new dat.GUI();
   gui.add(settings, 'cpu');
   gui.add(settings, 'webgl1');
   gui.add(settings, 'webgl2');
-  //gui.add(settings, 'named measures');
+  gui.add(settings, 'named measures');
+  gui.add(settings, 'new loggers');
   gui.add(settings, 'with statsJs ui');
   gui.add(settings, 'count', 10000, 5000000);
   let prevCount = settings.count;
@@ -132,7 +134,7 @@
     position.set(x, y, z);
   }
 
-  function heavyUpdate() {
+  function heavyCpuUpdate() {
     if (prevCount != settings.count) {
       scene.remove(scene.children[0]);
       setupParticles();
@@ -145,7 +147,7 @@
 
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
-    heavyUpdate();
+    heavyCpuUpdate();
     renderer.render(scene, camera);
     requestAnimationFrame(draw);
 

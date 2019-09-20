@@ -35,7 +35,7 @@ var GLBench = (function () {
       
       if (this.queryQueue.length > 0) {
         this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-        while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) && this.queryQueue[this.queryId] &&
+        while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) &&
               this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT_AVAILABLE)) {
                 
           const dt = this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT);
@@ -55,8 +55,8 @@ var GLBench = (function () {
               const accum = this.namedAccums[i];
               const gpu = accum / this.totalAccum * 100;
               const ms = accum / frames / 1e6;
-              this.fpsLogger(fps, frametime, i);
               this.gpuLogger(gpu, ms, i);
+              this.fpsLogger(fps, frametime, i);
             }
             this.queryQueue.slice(0, this.queryId).forEach(q => this.gl.deleteQuery(q.query));
             this.queryQueue.splice(0, this.queryId);
@@ -93,23 +93,35 @@ var GLBench = (function () {
       this.measureMode = 0;
 
       this.zerotime = null;
-      this.namedBegins = [];
-    }
-
-    now() {
-      return (performance && performance.now) ? performance.now() : Date.now();
     }
 
     begin(nameId) {
       if (nameId === 0) this.frameId++;
       if (this.namedAccums.length <= nameId) this.namedAccums.push(0);
-      if (this.namedBegins.length <= nameId) this.namedBegins.push(0);
+      
+      this.update();
+      this.measureMode += 1 << nameId;
+    }
 
-      this.namedBegins[nameId] = this.now();
+    end(nameId) {
+      this.update();
+      this.measureMode -= 1 << nameId;
+    }
+
+    update() {
+      const now = (performance && performance.now) ? performance.now() : Date.now();
       if (this.zerotime == null) {
-        this.zerotime = this.namedBegins[nameId];
+        this.zerotime = now;
       } else {
-        const totalAccum = this.namedBegins[nameId] - this.zerotime;
+        const dt = now - this.timestamp;
+        const binaryFlags = this.measureMode.toString(2);
+        for (let i = 0; i < binaryFlags.length; i++) {
+          if (binaryFlags[i] == '1') {
+            this.namedAccums[binaryFlags.length - i - 1] += dt;
+          }
+        }
+
+        const totalAccum = this.timestamp - this.zerotime;
         let seconds = totalAccum / 1e3;
         if (seconds >= 1) {
           const fps = this.frameId / seconds;
@@ -118,25 +130,16 @@ var GLBench = (function () {
             const accum = this.namedAccums[i];
             const cpu = accum / totalAccum * 100;
             const ms = accum / this.frameId;
-            this.fpsLogger(fps, frametime, i);
             this.cpuLogger(cpu, ms, i);
+            this.fpsLogger(fps, frametime, i);
           }
           let j = this.namedAccums.length;
           while (j--) this.namedAccums[j] = 0;
           this.frameId = 0;
-          this.zerotime = this.namedBegins[nameId];
+          this.zerotime = this.timestamp;
         }
       }
-      this.measureMode += 1 << nameId;
-    }
-
-    end(nameId) {
-      const dt = this.now() - this.namedBegins[nameId];
-      const binaryFlags = this.measureMode.toString(2);
-      for (let i = 0; i < binaryFlags.length; i++) {
-        if (binaryFlags[i] == '1') this.namedAccums[binaryFlags.length - i - 1] += dt;
-      }
-      this.measureMode -= 1 << nameId;
+      this.timestamp = now;
     }
   }
 
@@ -194,7 +197,7 @@ var GLBench = (function () {
           return (x, y, i) => {
             this.elm[i].innerHTML = elmChanger(x, y);
             this.pct[i].style[pct == 'gl-box' ? 'fill' : 'strokeDasharray'] = pctChanger(x);
-            if (extraLogger) extraLogger(x);
+            if (extraLogger) extraLogger(x, y, i);
           }
         }
         this.fpsLogger = loggerTemplate.bind({}) (this.fpsLogger,
@@ -245,7 +248,7 @@ var GLBench = (function () {
     }
 
     /**
-     * Probably should be removed
+     * One line update
      */
     update() {
       if (!this.firstUpdate) this.firstUpdate = true;

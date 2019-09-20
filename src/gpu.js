@@ -32,7 +32,7 @@ export default class GPU {
     
     if (this.queryQueue.length > 0) {
       this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-      while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) && this.queryQueue[this.queryId] &&
+      while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) &&
             this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT_AVAILABLE)) {
               
         const dt = this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT);
@@ -52,8 +52,8 @@ export default class GPU {
             const accum = this.namedAccums[i];
             const gpu = accum / this.totalAccum * 100;
             const ms = accum / frames / 1e6;
-            this.fpsLogger(fps, frametime, i);
             this.gpuLogger(gpu, ms, i);
+            this.fpsLogger(fps, frametime, i);
           }
           this.queryQueue.slice(0, this.queryId).forEach(q => this.gl.deleteQuery(q.query));
           this.queryQueue.splice(0, this.queryId);

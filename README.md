@@ -29,17 +29,43 @@ function draw(now) {
 requestAnimationFrame(draw);
 ```
 
+Also you can compare two named measures and find bottleneck
+<img align="right" src="https://habrastorage.org/webt/dj/7t/rc/dj7trcda4kry1k0btsxc7kbyn0k.png"/>
+
+```javascript
+let bench = new GLBench();
+let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
+bench.init(gl, 2);
+
+function draw(now) {  
+
+  bench.begin('wow');
+  // some code
+  bench.end('wow');
+
+  bench.begin('such laggy');
+  // some code
+  bench.end('such laggy');
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+```
+
 ### Examples
 - [cpu](https://munrocket.github.io/gl-bench/examples/cpu.html)
 - [webgl1](https://munrocket.github.io/gl-bench/examples/webgl1.html)
 - [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
+- [named-measures](https://munrocket.github.io/gl-bench/examples/named-measures.html)
 
 ### 2do list
 - [x] update()
 - [x] examples
 - [x] webgl2 support
-- [x] tests
+- [x] ci tests
 - [x] begin()/end()
 - [x] own ui
-- [ ] named measures
-- [ ] in one frame, better ui
+- [x] named measures
+- [ ] further improvements
+
+[//]: # refactor gpu, workers, better ui, in one frame, emulate EXT

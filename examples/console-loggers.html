@@ -13,12 +13,11 @@
   </style>
 </head>
 <body>
-  <h1>Named measures</h1>
+  <h1>new loggers</h1>
   <canvas id="c"></canvas>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
 <script src="../dist/gl-bench.js"></script>
 <script>
   let scene;
@@ -44,9 +43,20 @@
   gui.add(settings, 'count', 10000, 5000000);
   let prevCount = settings.count;
 
-  // GLBench initialization
-  let bench = new GLBench();
+  function consoleLog(text) {
+    const p = document.createElement('div');
+    p.appendChild(document.createTextNode(text))
+    p.style.color = 'white';
+    document.getElementById('gl-bench-dom').appendChild(p);
+  }
 
+  // GLBench initialization
+  let bench = new GLBench({
+    fpsLogger: (fps, frametime, i) => consoleLog('fps=' + fps + ', frametime=' + frametime + ', measureId=' + i),
+    cpuLogger: (cpu, ms, i) => consoleLog('cpu=' + cpu + ', ms=' + ms + ', measureId=' + i),
+    gpuLogger: (gpu, ms, i) => consoleLog('cpu=' + gpu + ', ms=' + ms + ', measureId=' + i)
+  });
+  
   function setup() {
     setupScene();
     setupCamera();
@@ -66,9 +76,9 @@
   
   function setupRenderer() {
     let canvas = document.getElementById('c');
-    let context = canvas.getContext( 'webgl' );
-    bench.init(context, 2);
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
+    let context = canvas.getContext('webgl')
+    bench.init(context);
+    renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context} );
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   
@@ -135,25 +145,20 @@
       setupParticles();
       prevCount = settings.count;
     }
-    let val = 0;
-    for (let i = 0; i < 5 * settings.count; i++) {
-      val += i*i;
-    }
-    settings.val = val;
   }
   
   function draw() {
+    //begin measure
+    bench.begin();
 
-    bench.begin('heavy cpu');
     movePosition(camera.position, 0);
     camera.lookAt(scene.position);
-    heavyCpuUpdate();
-    bench.end('heavy cpu');
-    
-    bench.begin('heavy gpu');
+    heavyCpuUpdate();   
     renderer.render(scene, camera);
+
+    //end measure
+    bench.end();
     requestAnimationFrame(draw);
-    bench.end('heavy gpu');
   }
   
   setup();

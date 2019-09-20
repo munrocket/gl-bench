@@ -53,7 +53,7 @@ export default class GLBench {
         return (x, y, i) => {
           this.elm[i].innerHTML = elmChanger(x, y);
           this.pct[i].style[pct == 'gl-box' ? 'fill' : 'strokeDasharray'] = pctChanger(x);
-          if (extraLogger) extraLogger(x);
+          if (extraLogger) extraLogger(x, y, i);
         }
       }
       this.fpsLogger = loggerTemplate.bind({}) (this.fpsLogger,
@@ -104,7 +104,7 @@ export default class GLBench {
   }
 
   /**
-   * Probably should be removed
+   * One line update
    */
   update() {
     if (!this.firstUpdate) this.firstUpdate = true;
