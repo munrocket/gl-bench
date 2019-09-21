@@ -6,13 +6,13 @@
 <text x="26.5" y="34" class="gl-text">CPU</text>
 <circle cx="26.5" cy="26.5" r="20" stroke-width="3.5" class="gl-circle"/>
 <path d="M21.0 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831"
-  stroke-dasharray="0, 100" class="gl-arc gl-cpu-arc"/>
+  class="gl-arc gl-cpu-arc"/>
 
 <circle cx="73.5" cy="26.5" r="20" stroke-width="3.5" class="gl-circle"/>
 <text x="73.5" y="22" class="gl-text gl-gpu">00%</text>
 <text x="73.5" y="34" class="gl-text">GPU</text>
 <path d="M58.5 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831"
-  stroke-dasharray="0, 100" class="gl-arc gl-gpu-arc"/>
+  class="gl-arc gl-gpu-arc"/>
 
 <text x="50" y="59" font-size=".8em" class="gl-text gl-fps">00 FPS</text>
 <circle cx="18" cy="58" r="3" style="opacity:0.55"/>

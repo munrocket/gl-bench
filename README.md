@@ -12,7 +12,7 @@ completed, but will idle the graphics pipeline and adversely affect application 
 ![](https://habrastorage.org/webt/kf/ef/tk/kfeftk9mbebg7okddc5_i9qohjy.png)
 
 ### Basic usage
-Add script on page from [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js) or [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
+Add script on page from CDN ([jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js), [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js)) and wrap monitored code with begin/end marks
 ```javascript
 let bench = new GLBench();
 let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
@@ -29,60 +29,48 @@ function draw(now) {
 requestAnimationFrame(draw);
 ```
 
-### Analysing performance
-
+### Performance analysis
 Steps in the diagram below may seem obvious, but beginners and experienced developers have in the past
 made simple mistakes that have cost large amounts of development time to resolve. Developers tend
 to run their analysis tools, identify a bottleneck, modify their application and consider the work done.
 One of the most important stages of optimisation though is to verify the change has actually improved
 performance. Without analysing performance after a modification, it's easy for new, and possibly
 worse, bottlenecks to creep their way into a renderer.
-
-<img align="center src="https://habrastorage.org/webt/rz/wc/rt/rzwcrtvknewotsdidh8il5bb080.png"/>
+<p align="center">
+<img align="center" src="https://habrastorage.org/webt/su/ua/8_/suua8_j95osi16-6bs6jqcfiwoa.jpeg"/>
+</p>
 
 ### Profiling with gl-bench
-
-<img align="left" src="https://habrastorage.org/webt/i7/qp/m6/i7qpm6rbift4ho9v45doncekrte.png"/>
-
 ```javascript
 let bench = new GLBench();
 let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
-bench.init(gl, 2); // <-- two boxes
+bench.init(gl, 2); // <-- init two boxes
 
 function draw() {  
 
   bench.begin('wow');
-  // some code
+  // some bottleneck
   bench.end('wow');
 
   bench.begin('such laggy');
-  // some code
+  // some bottleneck
   bench.end('such laggy');
 
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
 ```
+![](https://habrastorage.org/webt/pf/hu/gx/pfhugxwkz0z4knd8tczrs9r6h4c.png)
 
 ### Examples / e2e tests
-
-- [cpu-fallback](https://munrocket.github.io/gl-bench/examples/cpu.html)
 - [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
 - [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
-- [named-measures](https://munrocket.github.io/gl-bench/examples/named-measures.html)
+- [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
 
 ### Contributing
-
-Fork this repository, install the dependencies and start dev server with `npm run dev`.
-You can quickly verify code with unit/e2e tests on address `localhost:1234`.
-
-### 2do list
-- [x] update()
-- [x] webgl2 support
-- [x] ci tests
-- [x] own ui
-- [x] named measures
-- [ ] further improvements
+If you want to contribute to a project, fork this repository and install the dependencies,
+after that you can start dev server with `npm run dev` and open examples in browser `localhost:1234`
+or run `npm run test`.
 
 [//]: # (=== further improvements ===)
 [//]: # (refactor gpu, workers, better ui, in one frame, emulate EXT)

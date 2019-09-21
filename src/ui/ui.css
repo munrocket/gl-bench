@@ -15,6 +15,7 @@
   font-weight: 700;
   font-size: 0.7em;
   text-anchor: middle;
+  dominant-baseline: middle;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -27,6 +28,7 @@
   fill: none;  
   stroke: black;
   stroke-width: 2.6;
+  stroke-dasharray: 0, 100;
   opacity: 0.5;  
   transform: scale(1.25663);
 }
