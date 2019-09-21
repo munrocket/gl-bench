@@ -32,12 +32,22 @@ var GLBench = (function () {
     begin(nameId) {
       if (nameId === 0) this.frameId++;
       if (this.namedAccums.length <= nameId) this.namedAccums.push(0);
-      
+
+      this.measureMode += 1 << nameId;
+      this.update();
+    }
+
+    end(nameId) {
+      this.measureMode -= 1 << nameId;
+      this.update();
+    }
+
+    update() {
       if (this.queryQueue.length > 0) {
         this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
+
         while (!this.gl.getParameter(this.ext.GPU_DISJOINT_EXT) &&
               this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT_AVAILABLE)) {
-                
           const dt = this.gl.getQueryParameter(this.queryQueue[this.queryId].query, this.gl.QUERY_RESULT);
           this.totalAccum += dt;
           const binaryFlags = this.queryQueue[this.queryId].measureMode.toString(2);
@@ -67,15 +77,6 @@ var GLBench = (function () {
           }
         }
       }
-      
-      this.measureMode += 1 << nameId;
-      this.queryQueue.push({ query: this.gl.createQuery(), measureMode: this.measureMode, frameId: this.frameId });
-      this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queryQueue[this.queryQueue.length-1].query);
-    }
-
-    end(nameId) {
-      this.gl.endQuery(this.ext.TIME_ELAPSED_EXT);
-      this.measureMode -= 1 << nameId;
 
       this.queryQueue.push({ query: this.gl.createQuery(), measureMode: this.measureMode, frameId: this.frameId });
       this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.queryQueue[this.queryQueue.length-1].query);

@@ -73,4 +73,4 @@ after that you can start dev server with `npm run dev` and open examples in brow
 or run `npm run test`.
 
 [//]: # (=== further improvements ===)
-[//]: # (refactor gpu, workers, better ui, in one frame, emulate EXT)
+[//]: # (workers, better ui, in one frame, emulate EXT)
