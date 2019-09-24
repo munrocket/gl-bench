@@ -1,5 +1,8 @@
-var GLBench = (function () {
-  'use strict';
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.GLBench = factory());
+}(this, function () { 'use strict';
 
   class GPU {
 
@@ -144,79 +147,85 @@ var GLBench = (function () {
     }
   }
 
-  var UIFull = "<svg viewBox=\"0 0 100 70\" class=\"gl-bench\">\n\n<rect x=\"0\" y=\"0\" width=\"100\" height=\"70\" rx=\"26.5\" ry=\"26.5\" class=\"gl-box\"/>\n\n<text x=\"26.5\" y=\"22\" class=\"gl-text gl-cpu\">00%</text>\n<text x=\"26.5\" y=\"34\" class=\"gl-text\">CPU</text>\n<circle cx=\"26.5\" cy=\"26.5\" r=\"20\" stroke-width=\"3.5\" class=\"gl-circle\"/>\n<path d=\"M21.0 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831\"\n  class=\"gl-arc gl-cpu-arc\"/>\n\n<circle cx=\"73.5\" cy=\"26.5\" r=\"20\" stroke-width=\"3.5\" class=\"gl-circle\"/>\n<text x=\"73.5\" y=\"22\" class=\"gl-text gl-gpu\">00%</text>\n<text x=\"73.5\" y=\"34\" class=\"gl-text\">GPU</text>\n<path d=\"M58.5 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831\"\n  class=\"gl-arc gl-gpu-arc\"/>\n\n<text x=\"50\" y=\"59\" font-size=\".8em\" class=\"gl-text gl-fps\">00 FPS</text>\n<circle cx=\"18\" cy=\"58\" r=\"3\" style=\"opacity:0.55\"/>\n<circle cx=\"82\" cy=\"58\" r=\"3\" style=\"opacity:0.55\"/>\n\n</svg>";
+  var UIFull = "<svg viewBox=\"0 0 100 70\" class=\"gl-bench\">\n\n<rect x=\"0\" y=\"0\" width=\"100\" height=\"70\" rx=\"26.5\" ry=\"26.5\" class=\"gl-box\"/>\n\n<text x=\"26.5\" y=\"22\" class=\"gl-text gl-cpu\">00%</text>\n<text x=\"26.5\" y=\"34\" class=\"gl-text\">CPU</text>\n<circle cx=\"26.5\" cy=\"26.5\" r=\"20\" class=\"gl-circle\"/>\n<path d=\"M21.0 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831\"\n  class=\"gl-arc gl-cpu-arc\"/>\n\n<circle cx=\"73.5\" cy=\"26.5\" r=\"20\" class=\"gl-circle\"/>\n<text x=\"73.5\" y=\"22\" class=\"gl-text gl-gpu\">00%</text>\n<text x=\"73.5\" y=\"34\" class=\"gl-text\">GPU</text>\n<path d=\"M58.5 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831\"\n  class=\"gl-arc gl-gpu-arc\"/>\n\n<text x=\"50\" y=\"59\" font-size=\".8em\" class=\"gl-text gl-fps\">00 FPS</text>\n<circle cx=\"18\" cy=\"58\" r=\"3\" style=\"opacity:0.55\"/>\n<circle cx=\"82\" cy=\"58\" r=\"3\" style=\"opacity:0.55\"/>\n\n</svg>";
 
   var UIMin = "<svg viewBox=\"0 0 100 52.632\" class=\"gl-bench\">\n\n<rect x=\"0\" y=\"0\" width=\"100\" height=\"52.632\" rx=\"26.5\" ry=\"26.5\" class=\"gl-box\"/>\n\n<text x=\"26.5\" y=\"22\" class=\"gl-text gl-cpu\" >00%</text>\n<text x=\"26.5\" y=\"34\" class=\"gl-text\">CPU</text>\n<circle cx=\"26.5\" cy=\"26.5\" r=\"20\" stroke-width=\"3.5\" class=\"gl-circle\"/>\n<path d=\"M21.0 37 a 15.9155 -15.9155 0 0 1 0 -31.831 a 15.9155 15.9155 0 0 1 0 31.831\"\n  class=\"gl-arc gl-cpu-arc\"/>\n\n<text x=\"74\" y=\"28\" class=\"gl-text gl-fps\" style=\"font-size:0.8em\">00 FPS</text>\n\n</svg>";
 
-  var UIStyle = ".gl-bench {\n  position: relative;\n  display: block;\n  margin: 5px;\n  width: 100px;\n  cursor: pointer;\n}\n\n.gl-box {\n  fill: hsla(120, 50%, 60%, 0.65);\n}\n\n.gl-text {\n  font-family: sans-serif;\n  font-weight: 700;\n  font-size: 0.7em;\n  text-anchor: middle;\n  dominant-baseline: middle;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  opacity: 0.7;\n}\n\n.gl-arc {\n  fill: none;  \n  stroke: black;\n  stroke-width: 2.6;\n  stroke-dasharray: 0, 100;\n  opacity: 0.5;  \n  transform: scale(1.25663);\n}\n\n.gl-circle {\n  fill: none;\n  stroke: black;\n  opacity: 0.4;\n}";
+  var UIStyle = ".gl-bench {\n  position: relative;\n  display: block;\n  margin: 5px;\n  width: 100px;\n  cursor: pointer;\n}\n\n.gl-box {\n  fill: hsla(120, 50%, 60%, 0.65);\n}\n\n.gl-text {\n  font-family: sans-serif;\n  font-weight: 700;\n  font-size: 0.7em;\n  text-anchor: middle;\n  dominant-baseline: middle;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  opacity: 0.7;\n}\n\n.gl-arc {\n  fill: none;  \n  stroke: black;\n  stroke-width: 2.6;\n  stroke-dasharray: 0, 100;\n  opacity: 0.5;  \n  transform: scale(1.25663);\n}\n\n.gl-circle {\n  fill: none;\n  stroke-width: 3.5;\n  stroke: black;\n  opacity: 0.4;\n}";
 
-  /**
-  * WebGL benchmark
-  * @param { Object | undefined } extraLoggers
-  */
   class GLBench {
-    constructor(extraLoggers = {}) {
-      Object.assign(this, extraLoggers);
-      this.showMS = false;
-      this.names = [];
-    }
 
     /**
-     * Context and UI initialization
-     * @param { WebGLRenderingContext | WebGL2RenderingContext } webglContext 
-     * @param { number | undefined } uiCount
+     * @param { WebGLRenderingContext | WebGL2RenderingContext } context 
+     * @param { Object | undefined } settings
      */
-    init(webglContext, uiCount = 1) {
-      let ext;
-      if (webglContext instanceof WebGLRenderingContext) {
-        ext = webglContext.getExtension('EXT_disjoint_timer_query');
-      } else if (webglContext instanceof WebGL2RenderingContext) {
-        ext = webglContext.getExtension('EXT_disjoint_timer_query_webgl2');
-      }
+    constructor(context, settings = {}) {
+      this.names = [];
+      Object.assign(this, settings);
 
-      if (uiCount > 0) {
-        const rootNode = document.body;
-        let domNode = document.getElementById('gl-bench-dom');
-        if (!domNode) {
-          domNode = document.createElement('div');
-          domNode.id = 'gl-bench-dom';
-          domNode.style.cssText = 'position:absolute;left:0;top:0;z-index:1000';
+      // init ui
+      if (!this.withoutUI && typeof window != 'undefined') {
+        this.dom = document.getElementById('gl-bench-dom');
+        if (!this.dom) {
+          document.body.insertAdjacentHTML('afterbegin',
+            '<div id="gl-bench-dom" style="position:absolute;left:0;top:0;z-index:1000"></div>');
+          this.dom = document.getElementById('gl-bench-dom');
           let styleNode = document.createElement('style');
           styleNode.innerHTML = UIStyle;
-          domNode.appendChild(styleNode);
+          this.dom.appendChild(styleNode);
         }
-        let svgNode = document.createElement('template');
-        svgNode.innerHTML = ext ? UIFull : UIMin;
-        svgNode = svgNode.content.firstChild;
-        domNode.addEventListener('click', () => { this.showMS = !this.showMS; });
-        while (uiCount--) domNode.appendChild(svgNode.cloneNode(true));
-        rootNode.appendChild(domNode);
+        this.dom.addEventListener('click', () => { this.showMS = !this.showMS; });
 
-        function loggerTemplate(extraLogger, elm, elmChanger, pct, pctChanger) {
-          this.elm = domNode.getElementsByClassName(elm);
-          this.pct = domNode.getElementsByClassName(pct);
+        // init ui loggers
+        function attachLogger(elm, elmChanger, pct, pctChanger, extraLogger, dom, names) {
+          this.elm = dom.getElementsByClassName(elm);
+          this.pct = dom.getElementsByClassName(pct);
+          this.names = names;
           return (x, y, i) => {
             this.elm[i].innerHTML = elmChanger(x, y);
             this.pct[i].style[pct == 'gl-box' ? 'fill' : 'strokeDasharray'] = pctChanger(x);
-            if (extraLogger) extraLogger(x, y, i);
+            if (extraLogger) extraLogger(x, y, this.names[i]);
           }
         }
-        this.fpsLogger = loggerTemplate.bind({}) (this.fpsLogger,
+        this.fpsLogger = attachLogger.bind({}) (
           'gl-fps', (fps, ms) => !this.showMS ? fps.toFixed(0) + ' FPS' : ms.toFixed(2) + ' MS',
-          'gl-box', fps => 'hsla(' + Math.min(120, Math.max(0, 2.182*(fps-5))) + ',50%,60%,0.65)'
+          'gl-box', fps => 'hsla(' + Math.min(120, Math.max(0, 2.182*(fps-5))) + ',50%,60%,0.65)',
+          this.fpsLogger, this.dom, this.names
         );
-        this.cpuLogger = loggerTemplate.bind({}) (this.cpuLogger,
+        this.cpuLogger = attachLogger.bind({}) (
           'gl-cpu', (cpu, ms) => !this.showMS ? cpu.toFixed(0) + '%' : ms.toFixed(2),
-          'gl-cpu-arc', cpu => cpu.toFixed(0) + ', 100'
+          'gl-cpu-arc', cpu => cpu.toFixed(0) + ', 100',
+          this.cpuLogger, this.dom, this.names
         );
-        this.gpuLogger = !ext ? null : loggerTemplate.bind({}) (this.gpuLogger,
+        this.gpuLogger = attachLogger.bind({}) (
           'gl-gpu', (gpu, ms) => !this.showMS ? gpu.toFixed(0) + '%' : ms.toFixed(2),
-          'gl-gpu-arc', gpu => gpu.toFixed(0) + ', 100'
+          'gl-gpu-arc', gpu => gpu.toFixed(0) + ', 100',
+          this.gpuLogger, this.dom, this.names
         );
       }
 
-      this.cpu = new CPU(!ext ? this.fpsLogger : 0, this.cpuLogger);
-      if (ext) this.gpu = new GPU(webglContext, ext, this.fpsLogger, this.gpuLogger);
+      // init benchmarks
+      if (!this.withoutBenchmarks) {
+        let ext;
+        if (context instanceof WebGLRenderingContext) {
+          ext = context.getExtension('EXT_disjoint_timer_query');
+        } else if (context instanceof WebGL2RenderingContext) {
+          ext = context.getExtension('EXT_disjoint_timer_query_webgl2');
+        }
+        if (this.withoutEXT) ext = 0;
+
+        this.cpu = new CPU(ext ? 0 : this.fpsLogger, this.cpuLogger);
+        if (ext) this.gpu = new GPU(context, ext, this.fpsLogger, this.gpuLogger);
+      }
+    }
+
+    /**
+     * Add UI in dom
+     * @param { string } name 
+     */
+    addUI(name) {
+      this.names.push(name);
+      if (this.dom) this.dom.insertAdjacentHTML('beforeend', this.gpu ? UIFull : UIMin);
     }
 
     /**
@@ -227,7 +236,7 @@ var GLBench = (function () {
       let nameId = this.names.indexOf(name);
       if (this.names.indexOf(name) == -1) {
         nameId = this.names.length;
-        this.names.push(name);
+        this.addUI(name);
       }
 
       this.cpu.begin(nameId);
@@ -240,6 +249,7 @@ var GLBench = (function () {
      */
     end(name) {
       const nameId = this.names.indexOf(name);
+
       this.cpu.end(nameId);
       if (this.gpu) this.gpu.end(nameId);
     }
@@ -247,4 +257,4 @@ var GLBench = (function () {
 
   return GLBench;
 
-}());
+}));

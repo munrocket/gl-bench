@@ -14,9 +14,8 @@ completed, but will idle the graphics pipeline and adversely affect application 
 ### Basic usage
 Add script on page from CDN ([jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js), [unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js)) and wrap monitored code with begin/end marks
 ```javascript
-let bench = new GLBench();
-let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
-bench.init(gl);
+let gl = document.querySelector('canvas').getContext('webgl');
+let bench = new GLBench(gl);
 
 function draw(now) {  
 
@@ -42,9 +41,8 @@ worse, bottlenecks to creep their way into a renderer.
 
 ### Profiling with gl-bench
 ```javascript
-let bench = new GLBench();
-let gl = document.getElementsByTagName('canvas')[0].getContext('webgl');
-bench.init(gl, 2); // <-- init two boxes
+let gl = document.querySelector('canvas').getContext('webgl');
+let bench = new GLBench(gl);
 
 function draw() {  
 
@@ -73,4 +71,4 @@ after that you can start dev server with `npm run dev` and open examples in brow
 or run `npm run test`.
 
 [//]: # (=== further improvements ===)
-[//]: # (workers, better ui, in one frame, emulate EXT)
+[//]: # (emulate EXT, without rAF, better ui, in one frame)

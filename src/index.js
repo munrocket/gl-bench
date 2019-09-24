@@ -5,73 +5,79 @@ import UIFull from './ui/ui-full.svg';
 import UIMin from './ui/ui-min.svg';
 import UIStyle from './ui/ui.css';
 
-/**
-* WebGL benchmark
-* @param { Object | undefined } extraLoggers
-*/
 export default class GLBench {
-  constructor(extraLoggers = {}) {
-    Object.assign(this, extraLoggers);
-    this.showMS = false;
-    this.names = [];
-  }
 
   /**
-   * Context and UI initialization
-   * @param { WebGLRenderingContext | WebGL2RenderingContext } webglContext 
-   * @param { number | undefined } uiCount
+   * @param { WebGLRenderingContext | WebGL2RenderingContext } context 
+   * @param { Object | undefined } settings
    */
-  init(webglContext, uiCount = 1) {
-    let ext;
-    if (webglContext instanceof WebGLRenderingContext) {
-      ext = webglContext.getExtension('EXT_disjoint_timer_query');
-    } else if (webglContext instanceof WebGL2RenderingContext) {
-      ext = webglContext.getExtension('EXT_disjoint_timer_query_webgl2');
-    }
+  constructor(context, settings = {}) {
+    this.names = [];
+    Object.assign(this, settings);
 
-    if (uiCount > 0) {
-      const rootNode = document.body;
-      let domNode = document.getElementById('gl-bench-dom');
-      if (!domNode) {
-        domNode = document.createElement('div');
-        domNode.id = 'gl-bench-dom';
-        domNode.style.cssText = 'position:absolute;left:0;top:0;z-index:1000';
+    // init ui
+    if (!this.withoutUI && typeof window != 'undefined') {
+      this.dom = document.getElementById('gl-bench-dom');
+      if (!this.dom) {
+        document.body.insertAdjacentHTML('afterbegin',
+          '<div id="gl-bench-dom" style="position:absolute;left:0;top:0;z-index:1000"></div>');
+        this.dom = document.getElementById('gl-bench-dom');
         let styleNode = document.createElement('style');
         styleNode.innerHTML = UIStyle;
-        domNode.appendChild(styleNode);
+        this.dom.appendChild(styleNode);
       }
-      let svgNode = document.createElement('template');
-      svgNode.innerHTML = ext ? UIFull : UIMin;
-      svgNode = svgNode.content.firstChild;
-      domNode.addEventListener('click', () => { this.showMS = !this.showMS; })
-      while (uiCount--) domNode.appendChild(svgNode.cloneNode(true));
-      rootNode.appendChild(domNode);
+      this.dom.addEventListener('click', () => { this.showMS = !this.showMS; });
 
-      function loggerTemplate(extraLogger, elm, elmChanger, pct, pctChanger) {
-        this.elm = domNode.getElementsByClassName(elm);
-        this.pct = domNode.getElementsByClassName(pct);
+      // init ui loggers
+      function attachLogger(elm, elmChanger, pct, pctChanger, extraLogger, dom, names) {
+        this.elm = dom.getElementsByClassName(elm);
+        this.pct = dom.getElementsByClassName(pct);
+        this.names = names;
         return (x, y, i) => {
           this.elm[i].innerHTML = elmChanger(x, y);
           this.pct[i].style[pct == 'gl-box' ? 'fill' : 'strokeDasharray'] = pctChanger(x);
-          if (extraLogger) extraLogger(x, y, i);
+          if (extraLogger) extraLogger(x, y, this.names[i]);
         }
       }
-      this.fpsLogger = loggerTemplate.bind({}) (this.fpsLogger,
+      this.fpsLogger = attachLogger.bind({}) (
         'gl-fps', (fps, ms) => !this.showMS ? fps.toFixed(0) + ' FPS' : ms.toFixed(2) + ' MS',
-        'gl-box', fps => 'hsla(' + Math.min(120, Math.max(0, 2.182*(fps-5))) + ',50%,60%,0.65)'
+        'gl-box', fps => 'hsla(' + Math.min(120, Math.max(0, 2.182*(fps-5))) + ',50%,60%,0.65)',
+        this.fpsLogger, this.dom, this.names
       );
-      this.cpuLogger = loggerTemplate.bind({}) (this.cpuLogger,
+      this.cpuLogger = attachLogger.bind({}) (
         'gl-cpu', (cpu, ms) => !this.showMS ? cpu.toFixed(0) + '%' : ms.toFixed(2),
-        'gl-cpu-arc', cpu => cpu.toFixed(0) + ', 100'
+        'gl-cpu-arc', cpu => cpu.toFixed(0) + ', 100',
+        this.cpuLogger, this.dom, this.names
       );
-      this.gpuLogger = !ext ? null : loggerTemplate.bind({}) (this.gpuLogger,
+      this.gpuLogger = attachLogger.bind({}) (
         'gl-gpu', (gpu, ms) => !this.showMS ? gpu.toFixed(0) + '%' : ms.toFixed(2),
-        'gl-gpu-arc', gpu => gpu.toFixed(0) + ', 100'
+        'gl-gpu-arc', gpu => gpu.toFixed(0) + ', 100',
+        this.gpuLogger, this.dom, this.names
       );
     }
 
-    this.cpu = new CPU(!ext ? this.fpsLogger : 0, this.cpuLogger);
-    if (ext) this.gpu = new GPU(webglContext, ext, this.fpsLogger, this.gpuLogger);
+    // init benchmarks
+    if (!this.withoutBenchmarks) {
+      let ext;
+      if (context instanceof WebGLRenderingContext) {
+        ext = context.getExtension('EXT_disjoint_timer_query');
+      } else if (context instanceof WebGL2RenderingContext) {
+        ext = context.getExtension('EXT_disjoint_timer_query_webgl2');
+      }
+      if (this.withoutEXT) ext = 0;
+
+      this.cpu = new CPU(ext ? 0 : this.fpsLogger, this.cpuLogger);
+      if (ext) this.gpu = new GPU(context, ext, this.fpsLogger, this.gpuLogger);
+    }
+  }
+
+  /**
+   * Add UI in dom
+   * @param { string } name 
+   */
+  addUI(name) {
+    this.names.push(name);
+    if (this.dom) this.dom.insertAdjacentHTML('beforeend', this.gpu ? UIFull : UIMin);
   }
 
   /**
@@ -82,7 +88,7 @@ export default class GLBench {
     let nameId = this.names.indexOf(name);
     if (this.names.indexOf(name) == -1) {
       nameId = this.names.length;
-      this.names.push(name);
+      this.addUI(name);
     }
 
     this.cpu.begin(nameId);
@@ -95,6 +101,7 @@ export default class GLBench {
    */
   end(name) {
     const nameId = this.names.indexOf(name);
+
     this.cpu.end(nameId);
     if (this.gpu) this.gpu.end(nameId);
   }

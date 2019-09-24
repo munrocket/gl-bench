@@ -13,42 +13,19 @@
   </style>
 </head>
 <body>
-  <h1>Comparison with Stats.js</h1>
+  <h1>With Stats.js UI</h1>
   <canvas id="c"></canvas>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="./js/datgui.js"></script>
   <script src="../dist/gl-bench.js"></script>
   <script>
+    let bench;
     let scene;
     let camera;
     let renderer;
-
-    let settings = {
-      count: 1000000,
-      'unit testing': () => window.location.replace("../test/index.html"),
-      'cpu': () => window.location.replace("./cpu.html"),
-      'webgl': () => window.location.replace("./webgl.html"),
-      'webgl2': () => window.location.replace("./webgl2.html"),
-      'named measuring': () => window.location.replace("./named-measuring.html"),
-      'new loggers': () => window.location.replace("./new-loggers.html"),
-      'with statsJs ui': () => window.location.replace("./with-statsJs-ui.html"),
-    };
-    let gui = new dat.GUI();
-    let ut = gui.addFolder('Unit testing')
-    ut.add(settings, 'unit testing');
-    let it = gui.addFolder('E2E testing');
-    it.add(settings, 'cpu');
-    it.add(settings, 'webgl');
-    it.add(settings, 'webgl2');
-    it.add(settings, 'named measuring');
-    it.add(settings, 'new loggers');
-    it.add(settings, 'with statsJs ui');
-    gui.add(settings, 'count', 10000, 5000000);
-    ut.open();
-    it.open();
-    let prevCount = settings.count;
     
     // ui helper
     let uiHelper = new Stats();
@@ -57,9 +34,6 @@
     uiHelper.dom.addEventListener('click', e => { e.stopPropagation() }, true);
     uiHelper.showPanel(3);
     document.body.appendChild(uiHelper.dom);
-
-    // initialization
-    let bench = new GLBench({ fpsLogger: x => fpsChart.update(x, 100)});
 
     // statsJS
     let statsJs = new Stats();
@@ -84,8 +58,14 @@
     
     function setupRenderer() {
       let canvas = document.getElementById('c');
-      let context = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
-      bench.init(context, 0);
+
+      // initialization
+      let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      bench = new GLBench(context, {
+        fpsLogger: x => fpsChart.update(x, 100),
+        withoutUI: true
+      });
+
       renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
@@ -103,7 +83,7 @@
     }
     
     function setupEventListeners() {
-      window.addEventListener("resize", onWindowResize);
+      window.addEventListener('resize', onWindowResize);
     }
     
     function addLorenzVertices(geometry) {
@@ -148,10 +128,10 @@
     }
 
     function heavyCpuUpdate() {
-      if (prevCount != settings.count) {
+      if (count != settings.count) {
         scene.remove(scene.children[0]);
         setupParticles();
-        prevCount = settings.count;
+        count = settings.count;
       }
     }
     

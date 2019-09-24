@@ -1,12 +1,17 @@
 import puppeteer from 'puppeteer';
+import pup2ist from 'puppeteer-to-istanbul';
 
 (async () => {
   const browser = await puppeteer.launch({
     headless: !process.env.CI,
     args: ['--use-gl=egl']
   });
+  const page = (await browser.pages())[0];
 
-  const page = await browser.newPage();
+  // enable coverage
+  await page.coverage.startJSCoverage();
+
+  // navigate to unit test page
   page.on('console', msg => {
     for (let i = 0; i < msg.args().length; ++i) {
       const str = msg.args()[i].toString().slice(9);
@@ -24,6 +29,10 @@ import puppeteer from 'puppeteer';
     }
   });
   await page.goto('http://127.0.0.1:1234/');
+
+  // disable coverage
+  const jsCoverage = await page.coverage.stopJSCoverage();
+  pup2ist.write([...jsCoverage]);
 
   await new Promise(resolve => setTimeout(resolve, 100000));
   process.exit(2);

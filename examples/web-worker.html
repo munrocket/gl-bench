@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>E2E Testing</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <style>
+    body { margin: 0; background-color: black; position: relative; }
+    canvas { display: block; position: absolute; }
+    h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
+  </style>
+</head>
+<body>
+  <h1>Web Worker support</h1>
+  <canvas id="c"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+  <script src="../dist/gl-bench.js"></script>
+  <script src="./js/datgui.js"></script>
+  <script>
+    //GLBench initialization
+    let bench = new GLBench(null, {
+      withoutBenchmarks: true
+    })
+
+    function settingsChanged() {
+      if (count != settings.count || width != settings.width || height != settings.height) {
+        count = settings.count;
+        width = window.innerWidth;
+        height = window.innerHeight;
+        worker.postMessage({
+          msg: 'settings',
+          settings: {
+            count: settings.count,
+            width: settings.width,
+            height: settings.height
+          }
+        });
+      }
+    }
+    window.addEventListener('resize', settingsChanged);
+
+    const canvas = document.querySelector('canvas');
+    const offscreenCanvas = canvas.transferControlToOffscreen();
+    const worker = new Worker('./js/worker.js');
+    worker.postMessage({
+      msg: 'init',
+      canvas: offscreenCanvas,
+      settings: {
+        count: settings.count,
+        width: settings.width,
+        height: settings.height
+      }
+    }, [offscreenCanvas]);
+
+    worker.onmessage = function(e) {
+      if (e.data.msg == 'initUI') {
+        bench.gpu = e.data.gpu;
+        bench.addUI(e.data.name);
+      } else if (['fpsLogger', 'cpuLogger', 'gpuLogger'].indexOf(e.data.msg) != -1) {
+        bench[e.data.msg](e.data.x, e.data.y, e.data.i);
+      }
+    };
+  </script>
+</body>
+</html>

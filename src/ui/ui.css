@@ -35,6 +35,7 @@
 
 .gl-circle {
   fill: none;
+  stroke-width: 3.5;
   stroke: black;
   opacity: 0.4;
 }
