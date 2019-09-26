@@ -16,24 +16,23 @@ import pup2ist from 'puppeteer-to-istanbul';
     for (let i = 0; i < msg.args().length; ++i) {
       const str = msg.args()[i].toString().slice(9);
       if (str[0] == '#') {
-        console.log('\x1b[34m' + str)
-      } else {
-        console.log(str);
+        console.log('\x1b[34m');
       }
+      console.log(str);
       if (str.trim() == '# ok') {
         console.log('\x1b[32m' + 'SUCCESS!');
         process.exit(0);
-      } else if (str == '# not ok') {
-        process.exit(1);
-      }
+      } 
     }
   });
+
+  // navigate to unit test page
   await page.goto('http://127.0.0.1:1234/');
 
   // disable coverage
   const jsCoverage = await page.coverage.stopJSCoverage();
   pup2ist.write([...jsCoverage]);
 
-  await new Promise(resolve => setTimeout(resolve, 100000));
-  process.exit(2);
+  await new Promise(resolve => setTimeout(resolve, 6000));
+  await browser.close();
 })();

@@ -1,3 +1,6 @@
+[![Bundlephobia](https://badgen.net/bundlephobia/min/gl-bench)](https://bundlephobia.com/result?p=gl-bench)
+[![CircleCI](https://badgen.net/github/status/munrocket/gl-bench/master/ci)](https://circleci.com/gh/munrocket/gl-bench)
+
 # ⏱ gl-bench
 
 Proper WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` extension.
@@ -64,6 +67,7 @@ requestAnimationFrame(draw);
 - [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
 - [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
 - [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
+- [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
 
 ### Contributing
 If you want to contribute to a project, fork this repository and install the dependencies,

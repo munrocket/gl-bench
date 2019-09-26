@@ -22,7 +22,7 @@ e2eTest.add(settings, 'named measuring');
 e2eTest.add(settings, 'new loggers');
 e2eTest.add(settings, 'web worker');
 e2eTest.add(settings, 'with statsjs ui');
-gui.add(settings, 'count', 10000, 5000000).onChange((val) => { if (typeof settingsChanged == 'function') settingsChanged(val) });
+gui.add(settings, 'count', 10000, 30000000).onChange((val) => { if (typeof settingsChanged == 'function') settingsChanged(val) });
 unitTest.open();
 e2eTest.open();
 let count = settings.count,

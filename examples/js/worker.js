@@ -4,23 +4,20 @@ importScripts('https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js');
 let canvas;
 let context;
 let settings;
-let rafID;
-
 let bench;
 let scene;
 let camera;
 let renderer;
 
 self.onmessage = function(e) {
-  if (rafID) self.cancelAnimationFrame(rafID);
   if (e.data.msg == 'init') {
     canvas = e.data.canvas;
     settings = e.data.settings;
     setup();
+    self.requestAnimationFrame(draw);
   } else if (e.data.msg == 'settings') {
     settings = e.data.settings;
   }
-  rafID = self.requestAnimationFrame(draw);
 }
 
 function setup() {
@@ -52,8 +49,8 @@ function setupRenderer() {
     fpsLogger: (x, y, i) => self.postMessage({ msg: 'fpsLogger', x: x, y: y, i: checkName(bench, i) }),
     cpuLogger: (x, y, i) => self.postMessage({ msg: 'cpuLogger', x: x, y: y, i: checkName(bench, i) }),
     gpuLogger: (x, y, i) => self.postMessage({ msg: 'gpuLogger', x: x, y: y, i: checkName(bench, i) }),
-    nameLogger: (name) => self.postMessage({ msg: 'nameLogger', name: name }),
-    withoutEXT: true
+    withoutUI: true,
+    withoutEXT: true // Bug in chrome???
   });
 
   renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
@@ -127,13 +124,13 @@ function heavyCpuUpdate() {
 }
 
 function draw() {
-  bench.begin('A');
+  bench.begin('in worker');
   movePosition(camera.position, 0);
   camera.lookAt(scene.position);
   heavyCpuUpdate();
   updateRenderer();
   renderer.render(scene, camera);
-  bench.end('A');
+  bench.end('in worker');
 
-  rafID = self.requestAnimationFrame(draw);
+  self.requestAnimationFrame(draw);
 }

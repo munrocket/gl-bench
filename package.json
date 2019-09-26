@@ -1,9 +1,9 @@
 {
   "name": "gl-bench",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A proper WebGL performance benchmark that uses GPU timers inside",
-  "main": "dist/gl-bench.min.js",
-  "browser": "dist/gl-bench.js",
+  "main": "dist/gl-bench.js",
+  "browser": "dist/gl-bench.min.js",
   "module": "dist/gl-bench.module.js",
   "type": "module",
   "scripts": {
@@ -16,14 +16,15 @@
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.10.0",
-    "codecov": "^3.6.1",
+    "codecov": "3.6.1",
     "concurrently": "4.1.2",
     "http-server": "0.11.1",
     "nyc": "^14.1.1",
     "puppeteer": "1.20.0",
-    "puppeteer-to-istanbul": "^1.2.2",
+    "puppeteer-to-istanbul": "1.2.2",
     "rollup": "1.21.4",
-    "rollup-plugin-string": "^3.0.0",
+    "rollup-plugin-modify": "3.0.0",
+    "rollup-plugin-string": "3.0.0",
     "zora": "3.0.2"
   },
   "author": "munrocket",
@@ -34,8 +35,8 @@
   },
   "keywords": [
     "benchmark",
+    "profiling",
     "performance",
-    "timer",
     "webgl",
     "webgl2",
     "stats.js",
