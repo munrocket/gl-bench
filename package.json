@@ -1,7 +1,7 @@
 {
   "name": "gl-bench",
   "version": "0.1.12",
-  "description": "A proper WebGL performance benchmark that uses GPU timers inside",
+  "description": "A proper WebGL performance monitor that uses GPU timers inside.",
   "main": "dist/gl-bench.js",
   "browser": "dist/gl-bench.min.js",
   "module": "dist/gl-bench.module.js",
@@ -37,6 +37,7 @@
     "benchmark",
     "profiling",
     "performance",
+    "monitor",
     "webgl",
     "webgl2",
     "stats.js",

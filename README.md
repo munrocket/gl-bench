@@ -3,7 +3,7 @@
 
 # ⏱ gl-bench
 
-Proper WebGL performance benchmark with GPU timers from `EXT_disjoint_timer_query` extension.
+Proper WebGL performance monitor with GPU timers from `EXT_disjoint_timer_query` extension. You can use it as a tiny profiling tool.
 
 ### Motivation
 CPU timers are not synchronized with the graphics rendering pipeline and not guarantee the completion
