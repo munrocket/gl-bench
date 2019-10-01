@@ -52,18 +52,17 @@
     
     function setupRenderer() {
       let canvas = document.getElementById('c');
+      let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context} );
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
       // GLBench initialization
-      let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      bench = new GLBench(context, {
+      bench = new GLBench(renderer.getContext(), {
         fpsLogger: (fps, frametime, i) => consoleLog('fps=' + fps.toFixed(4) + ', ms=' + frametime.toFixed(4) + ', id=' + i),
         cpuLogger: (cpu, ms, i) => consoleLog('cpu=' + cpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i),
         gpuLogger: (gpu, ms, i) => consoleLog('gpu=' + gpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i)
       });
       document.getElementById('gl-bench-dom').style.cssText = 'position:fixed;left:0;bottom:0;z-index:1000';
-
-      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context} );
-      renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
     function setupParticles() {

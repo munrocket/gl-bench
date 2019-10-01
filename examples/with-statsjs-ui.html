@@ -58,16 +58,16 @@
     
     function setupRenderer() {
       let canvas = document.getElementById('c');
+      
+      let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
       // initialization
-      let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       bench = new GLBench(context, {
         fpsLogger: x => fpsChart.update(x, 100),
         withoutUI: true
       });
-
-      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
-      renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
     function setupParticles() {

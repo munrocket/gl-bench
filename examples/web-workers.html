@@ -21,9 +21,7 @@
   <script src="./js/datgui.js"></script>
   <script>
     //GLBench initialization
-    let bench = new GLBench(null, {
-      withoutBenchmarks: true
-    })
+    let bench = new GLBench(null);
 
     function settingsChanged() {
       if (count != settings.count || width != settings.width || height != settings.height) {

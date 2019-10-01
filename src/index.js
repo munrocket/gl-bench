@@ -1,22 +1,40 @@
-import GPU from './gpu.js';
-import CPU from './cpu.js';
-
 import UIFull from './ui/ui-full.svg';
-import UIMin from './ui/ui-min.svg';
 import UIStyle from './ui/ui.css';
 
 export default class GLBench {
 
   /**
-   * @param { WebGLRenderingContext | WebGL2RenderingContext } context 
+   * @param { WebGLRenderingContext | WebGL2RenderingContext } gl 
    * @param { Object | undefined } settings
    */
-  constructor(context, settings = {}) {
+  constructor(gl, settings = {}) {
     this.names = [];
     Object.assign(this, settings);
 
-    // init ui
-    if (!this.withoutUI && typeof window != 'undefined') {
+    // add gpu profilers
+    const addProfiler = (fn, self) => function() {
+      const begin = self.now();
+      fn.apply(gl, arguments);
+      const temp = new Uint8Array(4);
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, temp);
+      const dt = self.now() - begin;
+      const binaryFlags = self.measureMode.toString(2);
+      for (let i = 0; i < binaryFlags.length; i++) {
+        if (binaryFlags[i] == '1') {
+          const index = binaryFlags.length - i - 1;
+          self.cpuAccums[index] -= dt;
+          self.gpuAccums[index] += dt;
+        }
+      }
+    }
+    if (gl instanceof WebGLRenderingContext || gl instanceof WebGL2RenderingContext) {
+      ['drawArrays', 'drawElements', 'drawArraysInstanced',
+        'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
+        .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this) });
+    }
+
+    // init ui and attach loggers
+    if (!this.withoutUI) {
       this.dom = document.getElementById('gl-bench-dom');
       if (!this.dom) {
         document.body.insertAdjacentHTML('afterbegin',
@@ -28,8 +46,7 @@ export default class GLBench {
       }
       this.dom.addEventListener('click', () => { this.showMS = !this.showMS; });
 
-      // init ui loggers
-      function attachLogger(elm, elmChanger, pct, pctChanger, extraLogger, dom, names) {
+      function addLogger(elm, elmChanger, pct, pctChanger, extraLogger, dom, names) {
         this.elm = dom.getElementsByClassName(elm);
         this.pct = dom.getElementsByClassName(pct);
         this.names = names;
@@ -39,36 +56,31 @@ export default class GLBench {
           if (extraLogger) extraLogger(x, y, this.names[i]);
         }
       }
-      this.fpsLogger = attachLogger.bind({}) (
+      this.fpsLogger = addLogger.bind({}) (
         'gl-fps', (fps, ms) => !this.showMS ? fps.toFixed(0) + ' FPS' : ms.toFixed(2) + ' MS',
         'gl-box', fps => 'hsla(' + Math.min(120, Math.max(0, 2.182*(fps-5))) + ',50%,60%,0.65)',
         this.fpsLogger, this.dom, this.names
       );
-      this.cpuLogger = attachLogger.bind({}) (
+      this.cpuLogger = addLogger.bind({}) (
         'gl-cpu', (cpu, ms) => !this.showMS ? cpu.toFixed(0) + '%' : ms.toFixed(2),
         'gl-cpu-arc', cpu => cpu.toFixed(0) + ', 100',
         this.cpuLogger, this.dom, this.names
       );
-      this.gpuLogger = attachLogger.bind({}) (
+      this.gpuLogger = addLogger.bind({}) (
         'gl-gpu', (gpu, ms) => !this.showMS ? gpu.toFixed(0) + '%' : ms.toFixed(2),
         'gl-gpu-arc', gpu => gpu.toFixed(0) + ', 100',
         this.gpuLogger, this.dom, this.names
       );
     }
+    if (!this.cpuLogger) this.cpuLogger = () => {};
+    if (!this.gpuLogger) this.gpuLogger = () => {};
+    if (!this.fpsLogger) this.fpsLogger = () => {};
 
-    // init benchmarks
-    if (!this.withoutBenchmarks) {
-      let ext;
-      if (context instanceof WebGLRenderingContext) {
-        ext = context.getExtension('EXT_disjoint_timer_query');
-      } else if (context instanceof WebGL2RenderingContext) {
-        ext = context.getExtension('EXT_disjoint_timer_query_webgl2');
-      }
-      if (this.withoutEXT) ext = 0;
-
-      this.cpu = new CPU(ext ? 0 : this.fpsLogger, this.cpuLogger);
-      if (ext) this.gpu = new GPU(context, ext, this.fpsLogger, this.gpuLogger);
-    }
+    this.now = () => (performance && performance.now) ? performance.now() : Date.now();
+    this.frameId = 0;
+    this.cpuAccums = [];
+    this.gpuAccums = [];
+    this.measureMode = 0;
   }
 
   /**
@@ -77,7 +89,7 @@ export default class GLBench {
    */
   addUI(name) {
     this.names.push(name);
-    if (this.dom) this.dom.insertAdjacentHTML('beforeend', this.gpu ? UIFull : UIMin);
+    if (this.dom) this.dom.insertAdjacentHTML('beforeend', UIFull);
   }
 
   /**
@@ -91,8 +103,12 @@ export default class GLBench {
       this.addUI(name);
     }
 
-    this.cpu.begin(nameId);
-    if (this.gpu) this.gpu.begin(nameId);
+    if (nameId === 0) this.frameId++;
+    if (this.cpuAccums.length <= nameId) this.cpuAccums.push(0);
+    if (this.gpuAccums.length <= nameId) this.gpuAccums.push(0);
+    
+    this.update();
+    this.measureMode += 1 << nameId;
   }
 
   /**
@@ -102,7 +118,46 @@ export default class GLBench {
   end(name) {
     const nameId = this.names.indexOf(name);
 
-    this.cpu.end(nameId);
-    if (this.gpu) this.gpu.end(nameId);
+    this.update();
+    this.measureMode -= 1 << nameId;
+  }
+
+  /**
+   * Accumulators updater
+   */
+  update() {
+    const now = this.now();
+    if (typeof this.zerotime == 'undefined') {
+      this.zerotime = now;
+    } else {
+      const dt = now - this.prevNow;
+      const binaryFlags = this.measureMode.toString(2);
+      for (let i = 0; i < binaryFlags.length; i++) {
+        if (binaryFlags[i] == '1') {
+          const index = binaryFlags.length - i - 1;
+          this.cpuAccums[index] += dt;
+        }
+      }
+
+      const totalAccum = now - this.zerotime;
+      let seconds = totalAccum / 1e3;
+      if (seconds >= 1) {
+        const fps = this.frameId / seconds;
+        const frametime = totalAccum / this.frameId;
+        for (let i = 0; i < this.cpuAccums.length; i++) {
+          this.cpuLogger(this.cpuAccums[i] / totalAccum * 100, this.cpuAccums[i] / this.frameId, i);
+          this.gpuLogger(this.gpuAccums[i] / totalAccum * 100, this.gpuAccums[i] / this.frameId, i);
+          this.fpsLogger(fps, frametime, i);
+        }
+        let j = this.cpuAccums.length;
+        while (j--) {
+          this.cpuAccums[j] = 0;
+          this.gpuAccums[j] = 0;
+        }
+        this.frameId = 0;
+        this.zerotime = now;
+      }
+    }
+    this.prevNow = now;
   }
 }

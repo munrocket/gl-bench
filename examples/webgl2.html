@@ -50,12 +50,12 @@
       }
       let canvas = document.getElementById('c');
 
-      // GLBench initialization
       let context = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
-      bench = new GLBench(context);
-
       renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
       renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // GLBench initialization
+      bench = new GLBench(renderer.getContext());
     }
     
     function setupParticles() {

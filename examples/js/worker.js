@@ -49,8 +49,7 @@ function setupRenderer() {
     fpsLogger: (x, y, i) => self.postMessage({ msg: 'fpsLogger', x: x, y: y, i: checkName(bench, i) }),
     cpuLogger: (x, y, i) => self.postMessage({ msg: 'cpuLogger', x: x, y: y, i: checkName(bench, i) }),
     gpuLogger: (x, y, i) => self.postMessage({ msg: 'gpuLogger', x: x, y: y, i: checkName(bench, i) }),
-    withoutUI: true,
-    withoutEXT: true // Bug in chrome???
+    withoutUI: true
   });
 
   renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
