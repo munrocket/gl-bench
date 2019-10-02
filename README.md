@@ -8,7 +8,7 @@ WebGL performance monitor that showing percentage of GPU/CPU load
 ### Motivation
 This package was created in order to use EXT_disjoint_timer_query extension, but this extension
 [was removed](https://caniuse.com/#search=EXT_disjoint_timer_query) from browsers due to the exploit,
-strange but it still working on some machines. Version 2 of this package tracks GPU calls on the CPU.
+strange but it still working on some machines. GLBench v2 tracks GPU calls on the CPU.
 
 ### Screenshots
 ![](https://habrastorage.org/webt/t1/xc/wu/t1xcwu802qy4c0wt1ioormzpudq.png)
@@ -58,9 +58,9 @@ function draw() {
 requestAnimationFrame(draw);
 ```
 
-[//]: # (### Contributing)
-[//]: # (If you want to contribute to a project, fork this repository and install the dependencies,)
-[//]: # (after that you can start dev server with `npm run dev` and open examples in browser `localhost:1234`)
-[//]: # (or run `npm run test`.)
+### Contributing
+If you want to contribute to a project, fork this repository and install the dependencies,
+after that you can start dev server with `npm run dev` and open examples in browser `localhost:1234`
+or run `npm run test`.
 
 [//]: # (without rAF, better ui)

@@ -1,5 +1,5 @@
-import UIFull from './ui/ui-full.svg';
-import UIStyle from './ui/ui.css';
+import UISVG from './ui.svg';
+import UICSS from './ui.css';
 
 export default class GLBench {
 
@@ -9,25 +9,33 @@ export default class GLBench {
    */
   constructor(gl, settings = {}) {
     this.names = [];
+    this.frameId = 0;
+
+    this.cpuAccums = [];
+    this.gpuAccums = [];
+    this.activeAccums = [];
+
+    this.cpuLogger = () => {};
+    this.gpuLogger = () => {};
+    this.fpsLogger = () => {};
+
+    this.now = () => (performance && performance.now) ? performance.now() : Date.now();
     Object.assign(this, settings);
 
     // add gpu profilers
-    const addProfiler = (fn, self) => function() {
-      const begin = self.now();
-      fn.apply(gl, arguments);
-      const temp = new Uint8Array(4);
-      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, temp);
-      const dt = self.now() - begin;
-      const binaryFlags = self.measureMode.toString(2);
-      for (let i = 0; i < binaryFlags.length; i++) {
-        if (binaryFlags[i] == '1') {
-          const index = binaryFlags.length - i - 1;
-          self.cpuAccums[index] -= dt;
-          self.gpuAccums[index] += dt;
-        }
-      }
-    }
     if (gl instanceof WebGLRenderingContext || gl instanceof WebGL2RenderingContext) {
+      const addProfiler = (fn, self) => function() {
+        const begin = self.now();
+        fn.apply(gl, arguments);
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+        const dt = self.now() - begin;
+        self.activeAccums.forEach((active, i) => {
+          if (active) {
+            self.gpuAccums[i] += dt;
+            self.cpuAccums[i] -= dt;
+          }
+        });
+      };
       ['drawArrays', 'drawElements', 'drawArraysInstanced',
         'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
         .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this) });
@@ -41,7 +49,7 @@ export default class GLBench {
           '<div id="gl-bench-dom" style="position:absolute;left:0;top:0;z-index:1000"></div>');
         this.dom = document.getElementById('gl-bench-dom');
         let styleNode = document.createElement('style');
-        styleNode.innerHTML = UIStyle;
+        styleNode.innerHTML = UICSS;
         this.dom.appendChild(styleNode);
       }
       this.dom.addEventListener('click', () => { this.showMS = !this.showMS; });
@@ -53,7 +61,7 @@ export default class GLBench {
         return (x, y, i) => {
           this.elm[i].innerHTML = elmChanger(x, y);
           this.pct[i].style[pct == 'gl-box' ? 'fill' : 'strokeDasharray'] = pctChanger(x);
-          if (extraLogger) extraLogger(x, y, this.names[i]);
+          extraLogger(x, y, this.names[i]);
         }
       }
       this.fpsLogger = addLogger.bind({}) (
@@ -72,15 +80,6 @@ export default class GLBench {
         this.gpuLogger, this.dom, this.names
       );
     }
-    if (!this.cpuLogger) this.cpuLogger = () => {};
-    if (!this.gpuLogger) this.gpuLogger = () => {};
-    if (!this.fpsLogger) this.fpsLogger = () => {};
-
-    this.now = () => (performance && performance.now) ? performance.now() : Date.now();
-    this.frameId = 0;
-    this.cpuAccums = [];
-    this.gpuAccums = [];
-    this.measureMode = 0;
   }
 
   /**
@@ -89,7 +88,7 @@ export default class GLBench {
    */
   addUI(name) {
     this.names.push(name);
-    if (this.dom) this.dom.insertAdjacentHTML('beforeend', UIFull);
+    if (this.dom) this.dom.insertAdjacentHTML('beforeend', UISVG);
   }
 
   /**
@@ -104,11 +103,14 @@ export default class GLBench {
     }
 
     if (nameId === 0) this.frameId++;
-    if (this.cpuAccums.length <= nameId) this.cpuAccums.push(0);
-    if (this.gpuAccums.length <= nameId) this.gpuAccums.push(0);
+    if (this.cpuAccums.length <= nameId) {
+      this.cpuAccums.push(0);
+      this.gpuAccums.push(0);
+      this.activeAccums.push(false);
+    }
     
     this.update();
-    this.measureMode += 1 << nameId;
+    this.activeAccums[nameId] = !this.activeAccums[nameId];
   }
 
   /**
@@ -119,7 +121,7 @@ export default class GLBench {
     const nameId = this.names.indexOf(name);
 
     this.update();
-    this.measureMode -= 1 << nameId;
+    this.activeAccums[nameId] = !this.activeAccums[nameId];
   }
 
   /**
@@ -131,13 +133,11 @@ export default class GLBench {
       this.zerotime = now;
     } else {
       const dt = now - this.prevNow;
-      const binaryFlags = this.measureMode.toString(2);
-      for (let i = 0; i < binaryFlags.length; i++) {
-        if (binaryFlags[i] == '1') {
-          const index = binaryFlags.length - i - 1;
-          this.cpuAccums[index] += dt;
+      this.activeAccums.forEach((active, i) => {
+        if (active) {
+          this.cpuAccums[i] += dt;
         }
-      }
+      });
 
       const totalAccum = now - this.zerotime;
       let seconds = totalAccum / 1e3;
@@ -148,16 +148,13 @@ export default class GLBench {
           this.cpuLogger(this.cpuAccums[i] / totalAccum * 100, this.cpuAccums[i] / this.frameId, i);
           this.gpuLogger(this.gpuAccums[i] / totalAccum * 100, this.gpuAccums[i] / this.frameId, i);
           this.fpsLogger(fps, frametime, i);
-        }
-        let j = this.cpuAccums.length;
-        while (j--) {
-          this.cpuAccums[j] = 0;
-          this.gpuAccums[j] = 0;
+          this.cpuAccums[i] = 0;
+          this.gpuAccums[i] = 0;
         }
         this.frameId = 0;
         this.zerotime = now;
       }
     }
-    this.prevNow = now;
+    this.prevNow = this.now();
   }
 }

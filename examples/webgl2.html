@@ -10,11 +10,15 @@
     body { margin: 0; background-color: black; position: relative; }
     canvas { display: block; position: absolute; }
     h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
+    .star { position: fixed; bottom: 0; right: 0; transform: scale(0.8) }
   </style>
 </head>
 <body>
   <h1>WebGL2 support</h1>
   <canvas id="c"></canvas>
+  <div class="star">
+    <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.107.0/examples/js/WebGL.js"></script>
