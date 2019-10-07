@@ -127,20 +127,22 @@
       settings.val = val;
     }
     
-    function draw() {
+    function draw(now) {
+      bench.nextFrame(now);
 
       // first mesurement
-      bench.begin('heavy cpu');
+      bench.begin('first');
       movePosition(camera.position, 0);
       camera.lookAt(scene.position);
       heavyCpuUpdate();
-      bench.end('heavy cpu');
+      bench.end('first');
       
       // second mesurement
-      bench.begin('heavy gpu');
+      bench.begin('second');
       renderer.render(scene, camera);
+      bench.end('second');
+
       requestAnimationFrame(draw);
-      bench.end('heavy gpu');
     }
     
     setup();

@@ -25,7 +25,7 @@
   <script src="./js/datgui.js"></script>
   <script>
     //GLBench initialization
-    let bench = new GLBench(null);
+    let bench = new GLBench();
 
     function settingsChanged() {
       if (count != settings.count || width != settings.width || height != settings.height) {
@@ -59,12 +59,21 @@
 
     worker.onmessage = function(e) {
       if (e.data.msg == 'initUI') {
-        bench.gpu = e.data.gpu;
         bench.addUI(e.data.name);
-      } else if (['fpsLogger', 'cpuLogger', 'gpuLogger'].indexOf(e.data.msg) != -1) {
-        bench[e.data.msg](e.data.x, e.data.y, e.data.i);
+      } else if (e.data.msg == 'paramLogger') {
+        bench.paramLogger(bench.names.indexOf(e.data.name), e.data.cpu, e.data.gpu, e.data.mem, e.data.fps);
+      } else if (e.data.msg == 'chartLogger') {
+        bench.chartLogger(bench.names.indexOf(e.data.name), e.data.chart, e.data.circularId);
       }
     };
+
+    function emptyLoop(t) {
+      // bench.nextFrame(t);
+      // bench.begin('main th.');
+      // bench.end('main th.');
+      // requestAnimationFrame(emptyLoop);
+    }
+    requestAnimationFrame(emptyLoop);
   </script>
 </body>
 </html>

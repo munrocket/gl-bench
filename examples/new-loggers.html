@@ -11,10 +11,12 @@
     canvas { display: block; position: absolute; }
     h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
     .star { position: fixed; bottom: 0; right: 0; transform: scale(0.8) }
+    #report { position: absolute; top: 0; left: 0;}
   </style>
 </head>
 <body>
   <h1>New loggers</h1>
+  <div id="report"></div>
   <canvas id="c"></canvas>
   <div class="star">
     <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
@@ -34,7 +36,8 @@
       const p = document.createElement('div');
       p.appendChild(document.createTextNode(text))
       p.style.color = 'white';
-      document.getElementById('gl-bench-dom').appendChild(p);
+      p.style.position = 'relative';
+      document.getElementById('report').appendChild(p);
     }
     
     function setup() {
@@ -62,11 +65,17 @@
 
       // GLBench initialization
       bench = new GLBench(renderer.getContext(), {
-        fpsLogger: (fps, frametime, i) => consoleLog('fps=' + fps.toFixed(4) + ', ms=' + frametime.toFixed(4) + ', id=' + i),
-        cpuLogger: (cpu, ms, i) => consoleLog('cpu=' + cpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i),
-        gpuLogger: (gpu, ms, i) => consoleLog('gpu=' + gpu.toFixed(4) + ', ms=' + ms.toFixed(4) + ', id=' + i)
+        withoutUI: true,
+        paramLogger: (i, cpu, gpu, mem, fps, totalAccum, frameId) => {
+          consoleLog(
+            'name=' + bench.names[i] +
+            ', cpu_ms=' + (cpu * totalAccum / 100 / frameId).toFixed(3) +
+            ', gpu_ms=' + (gpu * totalAccum / 100 / frameId).toFixed(3) +
+            ', frametime=' + (totalAccum / frameId).toFixed(3) +
+            ', mem_heap=' + mem.toFixed(1)
+          ) 
+        }
       });
-      document.getElementById('gl-bench-dom').style.cssText = 'position:fixed;left:0;bottom:0;z-index:1000';
     }
     
     function setupParticles() {
@@ -135,6 +144,8 @@
     }
     
     function draw() {
+      bench.nextFrame();
+
       //begin measure
       bench.begin('wow');
 

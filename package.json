@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
   "main": "dist/gl-bench.js",
   "browser": "dist/gl-bench.min.js",
@@ -34,10 +34,10 @@
     "url": "git+https://github.com/munrocket/gl-bench.git"
   },
   "keywords": [
+    "monitor",
     "benchmark",
     "profiling",
     "performance",
-    "monitor",
     "webgl",
     "webgl2",
     "stats.js",

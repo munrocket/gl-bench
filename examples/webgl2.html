@@ -49,13 +49,9 @@
     }
     
     function setupRenderer() {
-      if ( THREE.WEBGL.isWebGL2Available() === false ) {
-        document.body.appendChild( THREE.WEBGL.getWebGL2ErrorMessage() );
-      }
       let canvas = document.getElementById('c');
-
       let context = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2');
-      renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, context: context });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       // GLBench initialization
@@ -127,7 +123,9 @@
       }
     }
     
-    function draw() {
+    function draw(now) {
+      bench.nextFrame(now);
+      
       bench.begin();
 
       movePosition(camera.position, 0);

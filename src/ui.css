@@ -1,41 +1,47 @@
-.gl-bench {
+#gl-bench {
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:1000;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+#gl-bench svg {
+  height: 60px;
+  margin: 0 -1px;
+}
+
+#gl-bench div {
   position: relative;
   display: block;
   margin: 5px;
-  width: 100px;
+  padding: 0 7px 0 10px;
+  background: hsla(120, 50%, 60%, 1);
+  border-radius: 15px;
   cursor: pointer;
+  opacity: 0.9;
 }
 
-.gl-box {
-  fill: hsla(120, 50%, 60%, 0.65);
-}
-
-.gl-text {
-  font-family: sans-serif;
+#gl-bench text {
+  font-family: Helvetica,Arial,sans-serif;
   font-weight: 700;
-  font-size: 0.7em;
-  text-anchor: middle;
   dominant-baseline: middle;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  opacity: 0.7;
+  text-anchor: middle;
 }
 
-.gl-arc {
-  fill: none;  
+#gl-bench line {
+  stroke-width: 5;
   stroke: black;
-  stroke-width: 2.6;
-  stroke-dasharray: 0, 100;
-  opacity: 0.5;  
-  transform: scale(1.25663);
+  stroke-linecap: round;
 }
 
-.gl-circle {
+#gl-bench polyline {
   fill: none;
-  stroke-width: 3.5;
   stroke: black;
-  opacity: 0.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+  opacity: 0.8;
 }

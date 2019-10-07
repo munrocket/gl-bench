@@ -17,6 +17,9 @@ self.onmessage = function(e) {
     self.requestAnimationFrame(draw);
   } else if (e.data.msg == 'settings') {
     settings = e.data.settings;
+  } else if (e.data.msg == 'withoutGPU') {
+    bench.withoutGPU != bench.withoutGPU;
+    console.log(bench.withoutGPU);
   }
 }
 
@@ -34,25 +37,27 @@ function setupScene() {
 
 function setupRenderer() {
   context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
 
   let maxI = -1;
-  function checkName(bench, i) {
+  function name(i) {
     if (maxI < i) {
-      self.postMessage({ msg: 'initUI', gpu: !!bench.gpu, name: bench.names[i] });
+      self.postMessage({ msg: 'initUI', name: bench.names[i] });
       maxI = i;
     }
-    return i;
+    return bench.names[i];
   }
 
   //GLBench initialization
-  bench = new GLBench(context, {
-    fpsLogger: (x, y, i) => self.postMessage({ msg: 'fpsLogger', x: x, y: y, i: checkName(bench, i) }),
-    cpuLogger: (x, y, i) => self.postMessage({ msg: 'cpuLogger', x: x, y: y, i: checkName(bench, i) }),
-    gpuLogger: (x, y, i) => self.postMessage({ msg: 'gpuLogger', x: x, y: y, i: checkName(bench, i) }),
-    withoutUI: true
+  bench = new GLBench(renderer.getContext(), {
+    withoutUI: true,
+    paramLogger: (i, cpu, gpu, mem, fps) => {
+      self.postMessage({ msg: 'paramLogger', name: name(i), i, cpu, gpu, mem, fps})
+    },
+    chartLogger: (i, chart, circularId) => {
+      self.postMessage({ msg: 'chartLogger', name: name(i), i, chart, circularId });
+    }
   });
-
-  renderer = new THREE.WebGLRenderer( { canvas: canvas, context: context } );
 }
 
 function setupParticles() {
@@ -122,7 +127,9 @@ function heavyCpuUpdate() {
   }
 }
 
-function draw() {
+function draw(now) {
+  bench.nextFrame(now);
+
   bench.begin('in worker');
   movePosition(camera.position, 0);
   camera.lookAt(scene.position);
