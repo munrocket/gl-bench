@@ -12,7 +12,7 @@ Anyway after shifting to GPU tracking on CPU, it still can measure GPU/CPU load 
 and now have better device support.
 
 ### Screenshots
-![](https://habrastorage.org/webt/t1/xc/wu/t1xcwu802qy4c0wt1ioormzpudq.png)
+![](https://habrastorage.org/webt/c_/op/gc/c_opgchigtb2i4cpo_yj5pk1kmi.png)
 
 ### Examples / e2e tests
 - [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
@@ -20,10 +20,10 @@ and now have better device support.
 - [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
 - [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
+- [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Basic usage
-Add script on page from NPM or CDN([jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js),
-[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js)) and wrap monitored code with begin/end marks
+Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [cdn](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[cdn2](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
 let gl = renderer.getContext();
 let bench = new GLBench(gl);
@@ -61,19 +61,19 @@ function draw(now) {
 requestAnimationFrame(draw);
 ```
 
-### Changing settings
-```
+### New settings
+```javascript
 let bench = new GLBench(gl, {
-  css: newStyle,
-  svg: newDom,
-  paramLogger: () => {},
-  chartLogger: () => {},
+  css: 'newStyleString',
+  svg: 'newDomString',
+  paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
+  chartLogger: (i, chart, circularId) => { console.log(chart) },
   withoutUI: true
 };
 ```
 
 ### Contributing
 Fork this repository and install the dependencies, after that you can start dev server with `npm run dev`
-and open examples in browser `localhost:1234`. Also you can open issue.
+and open examples in browser `localhost:1234`.
 
-[//]: # (track instanced arrays, optimize code size, gl = null, without rAF)
+[//]: # (gl = null, without rAF)

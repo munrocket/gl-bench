@@ -19,16 +19,16 @@ export default class GLBench {
     this.gpuAccums = [];  
     this.activeAccums = [];
     this.chart = new Array(this.chartLen);
-    Object.assign(this, settings);
-
     this.now = () => (performance && performance.now) ? performance.now() : Date.now();
+
+    Object.assign(this, settings);
     this.frameId = -1;
 
     // attach gpu profilers
     if (gl) {
-      const addProfiler = (fn, self) => function() {
+      const addProfilers = (fn, self, target) => function() {
         const t = self.now();
-        fn.apply(gl, arguments);
+        fn.apply(target, arguments);
         if (!self.withoutGPU) {
           gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
           const dt = self.now() - t;
@@ -42,7 +42,15 @@ export default class GLBench {
       };
       ['drawArrays', 'drawElements', 'drawArraysInstanced',
         'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
-        .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this) });
+        .forEach(fn => { if (gl[fn]) gl[fn] = addProfilers(gl[fn], this, gl) });
+
+      const addExtProfilers = (fn, self) => function() {
+        let ext = fn.apply(gl, arguments);
+        ['drawElementsInstancedANGLE']
+          .forEach(fn => { if (ext[fn]) ext[fn] = addProfilers(ext[fn], self, ext) });
+        return ext;
+      };
+      gl.getExtension = addExtProfilers(gl.getExtension, this);
     }
 
     // init ui and ui loggers

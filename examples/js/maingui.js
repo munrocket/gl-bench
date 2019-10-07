@@ -1,5 +1,5 @@
 let settings = {
-  count: 1000000,
+  count: 100000,
   width: window.innerWidth,
   height: window.innerHeight,
   'unit testing': () => window.location.replace("../test/index.html"),
@@ -8,6 +8,7 @@ let settings = {
   'named measuring': () => window.location.replace("../examples/named-measuring.html"),
   'new loggers': () => window.location.replace("../examples/new-loggers.html"),
   'web workers': () => window.location.replace("../examples/web-workers.html"),
+  'instanced arrays': () => window.location.replace("../examples/instanced-arrays.html"),
 };
 let gui = new dat.GUI();
 let unitTest = gui.addFolder('Unit testing')
@@ -18,7 +19,8 @@ e2eTest.add(settings, 'webgl2');
 e2eTest.add(settings, 'new loggers');
 e2eTest.add(settings, 'named measuring');
 e2eTest.add(settings, 'web workers');
-gui.add(settings, 'count', 10000, 15000000).onChange((val) => { if (typeof settingsChanged == 'function') settingsChanged(val) });
+e2eTest.add(settings, 'instanced arrays');
+let countControl = gui.add(settings, 'count', 10000, 15000000).onChange((val) => { if (typeof settingsChanged == 'function') settingsChanged(val) });
 unitTest.open();
 e2eTest.open();
 let count = settings.count,

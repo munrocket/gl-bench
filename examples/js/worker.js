@@ -1,5 +1,5 @@
 importScripts('../../dist/gl-bench.js')
-importScripts('https://cdn.jsdelivr.net/npm/three@0.107.0/build/three.min.js');
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js');
 
 let canvas;
 let context;
