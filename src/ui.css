@@ -8,20 +8,20 @@
   user-select: none;
 }
 
-#gl-bench svg {
-  height: 60px;
-  margin: 0 -1px;
-}
-
 #gl-bench div {
   position: relative;
   display: block;
   margin: 5px;
   padding: 0 7px 0 10px;
-  background: hsla(120, 50%, 60%, 1);
+  background: #6c6;
   border-radius: 15px;
   cursor: pointer;
   opacity: 0.9;
+}
+
+#gl-bench svg {
+  height: 60px;
+  margin: 0 -1px;
 }
 
 #gl-bench text {

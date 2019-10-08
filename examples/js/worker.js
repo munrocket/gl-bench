@@ -19,7 +19,6 @@ self.onmessage = function(e) {
     settings = e.data.settings;
   } else if (e.data.msg == 'withoutGPU') {
     bench.withoutGPU != bench.withoutGPU;
-    console.log(bench.withoutGPU);
   }
 }
 

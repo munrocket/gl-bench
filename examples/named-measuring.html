@@ -24,6 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
   <script src="./js/maingui.js"></script>
   <script src="../dist/gl-bench.js"></script>
+  <script src="./themes/oscilloscope.js"></script>
   <script>
     let bench;
     let scene;
@@ -50,11 +51,12 @@
     function setupRenderer() {
       let canvas = document.getElementById('c');
       let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      
+      // GLBench initialization
+      bench = new GLBench(context, { css:CSS, svg:SVG });
+
       renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
       renderer.setSize(window.innerWidth, window.innerHeight);
-
-      // GLBench initialization
-      bench = new GLBench(renderer.getContext());
     }
     
     function setupParticles() {
@@ -146,7 +148,7 @@
     }
     
     setup();
-    draw();
+    requestAnimationFrame(draw);
   </script>
 </body>
 </html>

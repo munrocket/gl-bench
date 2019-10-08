@@ -1,7 +1,6 @@
-[![Bundlephobia](https://badgen.net/bundlephobia/min/gl-bench)](https://bundlephobia.com/result?p=gl-bench)
+[![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench)
 [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench/master/ci)](https://circleci.com/gh/munrocket/gl-bench)
-
-# ⏱ gl-bench
+# gl-bench
 
 WebGL performance monitor that showing percentage of GPU/CPU load.
 
@@ -12,7 +11,7 @@ Anyway after shifting to GPU tracking on CPU, it still can measure GPU/CPU load 
 and now have better device support.
 
 ### Screenshots
-![](https://habrastorage.org/webt/c_/op/gc/c_opgchigtb2i4cpo_yj5pk1kmi.png)
+![](https://habrastorage.org/webt/dk/fc/xf/dkfcxfdlohm2pnr-w1yi_casnvw.png)
 
 ### Examples / e2e tests
 - [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
@@ -23,10 +22,9 @@ and now have better device support.
 - [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Basic usage
-Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [cdn](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[cdn2](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
+Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
-let gl = renderer.getContext();
-let bench = new GLBench(gl);
+let bench = new GLBench(renderer.getContext());
 
 function draw(now) {
   bench.newFrame(now);
@@ -42,8 +40,9 @@ requestAnimationFrame(draw);
 
 ### Profiling
 ```javascript
-let gl = renderer.getContext();
+let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 let bench = new GLBench(gl);
+//with instanced_arrays/draw_buffers webgl extensions engine initialization goes here
 
 function draw(now) {
   bench.newFrame(now);
@@ -61,13 +60,13 @@ function draw(now) {
 requestAnimationFrame(draw);
 ```
 
-### New settings
+### New themes and loggers
 ```javascript
 let bench = new GLBench(gl, {
   css: 'newStyleString',
   svg: 'newDomString',
   paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
-  chartLogger: (i, chart, circularId) => { console.log(chart) },
+  chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
   withoutUI: true
 };
 ```

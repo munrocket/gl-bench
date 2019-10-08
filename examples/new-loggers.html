@@ -26,6 +26,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
   <script src="./js/maingui.js"></script>
   <script src="../dist/gl-bench.js"></script>
+  <script src="./themes/oscilloscope.js"></script>
   <script>
     let bench;
     let scene;
@@ -65,7 +66,8 @@
 
       // GLBench initialization
       bench = new GLBench(renderer.getContext(), {
-        withoutUI: true,
+        css: CSS,
+        svg: SVG,
         paramLogger: (i, cpu, gpu, mem, fps, totalAccum, frameId) => {
           consoleLog(
             'name=' + bench.names[i] +

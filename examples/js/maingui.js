@@ -20,7 +20,7 @@ e2eTest.add(settings, 'new loggers');
 e2eTest.add(settings, 'named measuring');
 e2eTest.add(settings, 'web workers');
 e2eTest.add(settings, 'instanced arrays');
-let countControl = gui.add(settings, 'count', 10000, 15000000).onChange((val) => { if (typeof settingsChanged == 'function') settingsChanged(val) });
+let countControl = gui.add(settings, 'count', 10000, 15000000);
 unitTest.open();
 e2eTest.open();
 let count = settings.count,
