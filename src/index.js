@@ -104,10 +104,11 @@ export default class GLBench {
         let nodes = { 'gl-chart': dom.getElementsByClassName('gl-chart') };
         return (i, chart, circularId) => {
           let points = '';
-          for (let i = 0; i < chart.length; i++) {
-            let id = (circularId + i + 1) % chart.length;
+          let len = chart.length;
+          for (let i = 0; i < len; i++) {
+            let id = (circularId + i + 1) % len;
             if (chart[id] != undefined) {
-              points = points + ' ' + (55 * i / (chart.length - 1)).toFixed(1) + ','
+              points = points + ' ' + (55 * i / (len - 1)).toFixed(1) + ','
                 + (45 - chart[id] * 22 / 60 / this.detected).toFixed(1);
             }
           }
