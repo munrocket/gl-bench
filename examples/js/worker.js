@@ -50,6 +50,7 @@ function setupRenderer() {
   //GLBench initialization
   bench = new GLBench(renderer.getContext(), {
     withoutUI: true,
+    trackGPU: true,
     paramLogger: (i, cpu, gpu, mem, fps) => {
       self.postMessage({ msg: 'paramLogger', name: name(i), i, cpu, gpu, mem, fps})
     },
@@ -127,8 +128,6 @@ function heavyCpuUpdate() {
 }
 
 function draw(now) {
-  bench.nextFrame(now);
-
   bench.begin('in worker');
   movePosition(camera.position, 0);
   camera.lookAt(scene.position);
@@ -137,5 +136,6 @@ function draw(now) {
   renderer.render(scene, camera);
   bench.end('in worker');
 
+  bench.nextFrame(now);
   self.requestAnimationFrame(draw);
 }

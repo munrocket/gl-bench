@@ -1,17 +1,9 @@
-[![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench)
-[![CircleCI](https://badgen.net/github/status/munrocket/gl-bench/master/ci)](https://circleci.com/gh/munrocket/gl-bench)
-# gl-bench
+# gl-bench &middot; [![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench) [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench)](https://circleci.com/gh/munrocket/gl-bench)
 
 WebGL performance monitor that showing percentage of GPU/CPU load.
 
-### Motivation
-This package was created in order to use EXT_disjoint_timer_query extension, but this extension
-[was removed](https://caniuse.com/#search=EXT_disjoint_timer_query) from browsers due to the exploit.
-Anyway after shifting to GPU tracking on CPU, it still can measure GPU/CPU load independently
-and now have better device support.
-
 ### Screenshots
-![](https://habrastorage.org/webt/dk/fc/xf/dkfcxfdlohm2pnr-w1yi_casnvw.png)
+![](https://habrastorage.org/webt/vb/ys/pz/vbyspz0emcxkslj0c-u0toxbom0.png)
 
 ### Examples / e2e tests
 - [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
@@ -27,26 +19,38 @@ Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdeli
 let bench = new GLBench(renderer.getContext());
 
 function draw(now) {
-  bench.newFrame(now);
-
   bench.begin();
   // monitored code
   bench.end();
 
+  bench.newFrame(now);
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
+```
+
+### Custom settings
+```javascript
+let bench = new GLBench(gl, {
+  css: 'newStyleString',
+  svg: 'newDomString',
+  paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
+  chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
+  withoutUI: false,
+  trackGPU: false, //track GPU load by default
+  chartHz: 20,     //chart update speed
+  chartLen: 20
+};
 ```
 
 ### Profiling
 ```javascript
 let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 let bench = new GLBench(gl);
-//with instanced_arrays/draw_buffers webgl extensions engine initialization goes here
+
+// engine initialization goes here with instanced_arrays/draw_buffers webgl1 extensions
 
 function draw(now) {
-  bench.newFrame(now);
-
   bench.begin('wow');
   // some bottleneck
   bench.end('wow');
@@ -55,20 +59,10 @@ function draw(now) {
   // some bottleneck
   bench.end('such laggy');
 
+  bench.newFrame(now);
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
-```
-
-### New themes and loggers
-```javascript
-let bench = new GLBench(gl, {
-  css: 'newStyleString',
-  svg: 'newDomString',
-  paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
-  chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
-  withoutUI: true
-};
 ```
 
 ### Contributing

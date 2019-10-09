@@ -123,8 +123,6 @@
     }
     
     function draw(now) {
-      bench.nextFrame(now);
-
       //begin measure
       bench.begin();
 
@@ -136,11 +134,12 @@
       //end measure
       bench.end();
 
+      bench.nextFrame(now);
       requestAnimationFrame(draw);
     }
     
     setup();
-    requestAnimationFrame(draw);
+    draw();
   </script>
 </body>
 </html>

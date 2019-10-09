@@ -26,7 +26,7 @@
   <script src="./themes/behance.js"></script>
   <script>
     //GLBench initialization
-    let bench = new GLBench(null, { css:CSS, svg:SVG });
+    let bench = new GLBench(null, { css:CSS, svg:SVG, trackGPU: true });
 
     countControl.onChange((val) => { settingsChanged(val) });
     function settingsChanged() {

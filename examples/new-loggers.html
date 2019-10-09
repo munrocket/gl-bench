@@ -67,7 +67,7 @@
       // GLBench initialization
       bench = new GLBench(renderer.getContext(), {
         css: CSS,
-        svg: SVG,
+        chartHz: 1,
         paramLogger: (i, cpu, gpu, mem, fps, totalAccum, frameId) => {
           consoleLog(
             'name=' + bench.names[i] +

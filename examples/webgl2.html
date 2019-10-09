@@ -54,7 +54,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       // GLBench initialization
-      bench = new GLBench(renderer.getContext());
+      bench = new GLBench(renderer.getContext(), { trackGPU: true });
     }
     
     function setupParticles() {
@@ -122,9 +122,7 @@
       }
     }
     
-    function draw(now) {
-      bench.nextFrame(now);
-      
+    function draw(now) {      
       bench.begin();
 
       movePosition(camera.position, 0);
@@ -132,6 +130,7 @@
       heavyCpuUpdate();
       renderer.render(scene, camera);
       requestAnimationFrame(draw);
+      bench.nextFrame(now);
 
       bench.end();
     }

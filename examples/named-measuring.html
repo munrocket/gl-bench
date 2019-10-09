@@ -53,7 +53,7 @@
       let context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       
       // GLBench initialization
-      bench = new GLBench(context, { css:CSS, svg:SVG });
+      bench = new GLBench(context, { css:CSS, trackGPU: true });
 
       renderer = new THREE.WebGLRenderer( { canvas: canvas, context : context } );
       renderer.setSize(window.innerWidth, window.innerHeight);
