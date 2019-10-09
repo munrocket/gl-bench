@@ -13,7 +13,18 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
-### Basic usage
+### Comparison table
+|                        Pros                                  |             Cons               |
+|--------------------------------------------------------------|--------------------------------|
+| GPU percentage load                                          | Shipped only with ES6 classes  |
+| Cool themes and loggers                                      | Size not so tiny               |
+| It is faster than Stats.js even if chart is updated at 20 hz |                                |
+| Chart show significant performance drop or inactive page     |                                |
+| Two and more measuring in one loop                           |                                |
+| Web workers support                                          |                                |
+| Support for devices with 120+ FPS                            |                                |
+
+### Usage
 Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
 let bench = new GLBench(renderer.getContext());
@@ -34,10 +45,10 @@ requestAnimationFrame(draw);
 let bench = new GLBench(gl, {
   css: 'newStyleString',
   svg: 'newSvgString',
-  dom: newNodeWrapper,
+  dom: newDomContainer,
   withoutUI: false,
   trackGPU: false,      // don't track GPU load by default
-  chartHz: 20,          // update speed (times in second)
+  chartHz: 20,          // chart update speed
   chartLen: 20,
   paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
   chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
@@ -49,7 +60,7 @@ let bench = new GLBench(gl, {
 let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 let bench = new GLBench(gl);
 
-// engine initialization with instanced_arrays/draw_buffers webgl1 extensions goes after
+// engine initialization with instanced_arrays/draw_buffers webgl1 extensions goes after!
 
 function draw(now) {
   bench.begin('wow');
@@ -69,5 +80,3 @@ requestAnimationFrame(draw);
 ### Contributing
 Fork this repository and install the dependencies, after that you can start dev server with `npm run dev`
 and open examples in browser `localhost:1234`.
-
-[//]: # (gl = null, without rAF)

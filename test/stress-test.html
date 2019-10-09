@@ -16,7 +16,7 @@
 <body>
   <div id="wrapper" style="position: absolute;">
   </div>
-  <h1 style="z-index: 10; text-shadow: 2px 1px 0px black;">Stress testing (256 full entities)</h1>
+  <h1 style="z-index: 10; text-shadow: 2px 1px 0px black;">Stress testing (500 full entities)</h1>
   <canvas id="c"></canvas>
   <div class="star">
     <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
@@ -30,12 +30,12 @@
   <script>
     let wrapper = document.getElementById('wrapper');
     let B = [];
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < 500; i++) {
       let node = document.createElement('div');
       node.id = '#'+i;
       node.style = 'height: 70px; width: 95px; display: inline-block;';
       wrapper.appendChild(node);
-      let bench = new GLBench(0, { dom: node });
+      let bench = new GLBench(0, { dom: node, chartHz: 10 });
       bench.dom.style.position = 'relative';
       bench.dom.style.zIndex = '0';
       B.push(bench);
