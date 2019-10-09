@@ -1,10 +1,10 @@
 {
   "name": "gl-bench",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
-  "main": "dist/gl-bench.js",
-  "browser": "dist/gl-bench.min.js",
-  "module": "dist/gl-bench.module.js",
+  "main": "./dist/gl-bench.js",
+  "browser": "./dist/gl-bench.min.js",
+  "module": "./dist/gl-bench.module.js",
   "type": "module",
   "scripts": {
     "build": "rollup -c",

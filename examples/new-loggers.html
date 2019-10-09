@@ -35,7 +35,7 @@
 
     function consoleLog(text) {
       const p = document.createElement('div');
-      p.appendChild(document.createTextNode(text))
+      p.appendChild(document.createTextNode(text));
       p.style.color = 'white';
       p.style.position = 'relative';
       document.getElementById('report').appendChild(p);
@@ -75,8 +75,11 @@
             ', gpu_ms=' + (gpu * totalAccum / 100 / frameId).toFixed(3) +
             ', frametime=' + (totalAccum / frameId).toFixed(3) +
             ', mem_heap=' + mem.toFixed(1)
-          ) 
-        }
+          );
+        },
+        chartLogger: (i, chart, circularId) => {
+          consoleLog('circularId=' + circularId.toFixed(0) + ', chart=' + chart.reduce((accum, i) => accum + ',' + i.toFixed(0), ''));
+        },
       });
     }
     

@@ -30,11 +30,16 @@ let CSS = `
 }
 
 #gl-bench text {
+  font-size: 12px;
   font-family: Helvetica,Arial,sans-serif;
   font-weight: 700;
   dominant-baseline: middle;
   text-anchor: middle;
   fill: #eff;
+}
+
+#gl-bench .gl-mem {
+  font-size: 9px;
 }
 
 #gl-bench line {

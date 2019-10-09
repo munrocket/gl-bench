@@ -1,4 +1,4 @@
-# gl-bench &middot; [![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench) [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench)](https://circleci.com/gh/munrocket/gl-bench)
+# gl-bench [![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench) [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench)](https://circleci.com/gh/munrocket/gl-bench)
 
 WebGL performance monitor that showing percentage of GPU/CPU load.
 
@@ -10,8 +10,8 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
 - [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
 - [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
-- [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 - [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
+- [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Basic usage
 Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
@@ -33,13 +33,14 @@ requestAnimationFrame(draw);
 ```javascript
 let bench = new GLBench(gl, {
   css: 'newStyleString',
-  svg: 'newDomString',
+  svg: 'newSvgString',
+  dom: newNodeWrapper,
+  withoutUI: false,
+  trackGPU: false,      // don't track GPU load by default
+  chartHz: 20,          // update speed (times in second)
+  chartLen: 20,
   paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
   chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
-  withoutUI: false,
-  trackGPU: false, //track GPU load by default
-  chartHz: 20,     //chart update speed
-  chartLen: 20
 };
 ```
 
@@ -48,7 +49,7 @@ let bench = new GLBench(gl, {
 let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 let bench = new GLBench(gl);
 
-// engine initialization goes here with instanced_arrays/draw_buffers webgl1 extensions
+// engine initialization with instanced_arrays/draw_buffers webgl1 extensions goes after
 
 function draw(now) {
   bench.begin('wow');

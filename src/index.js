@@ -31,27 +31,56 @@ export default class GLBench {
     this.detected = 0;
     this.frameId = 0;
 
-    // requset 120hz device detection
+    // 120hz device detection
     let rafId, n = 0, t0;
     let loop = (t) => {
       if (++n < 10) {
         rafId = requestAnimationFrame(loop);
       } else {
-        this.detected = Math.ceil(1e3 * n / (t - t0) / 80);
+        this.detected = Math.ceil(1e3 * n / (t - t0) / 70);
         cancelAnimationFrame(rafId);
       }
       if (!t0) t0 = t;
     }
     requestAnimationFrame(loop);
 
+    // attach gpu profilers
+    if (gl) {
+      const addProfiler = (fn, self, target) => function() {
+        const t = self.now();
+        fn.apply(target, arguments);
+        if (self.trackGPU) {
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+          const dt = self.now() - t;
+          self.activeAccums.forEach((active, i) => {
+            if (active) {
+              self.gpuAccums[i] += dt;
+              self.cpuAccums[i] -= dt;
+            }
+          });
+        }
+      };
+      ['drawArrays', 'drawElements', 'drawArraysInstanced',
+        'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
+        .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this, gl) });
+
+      const extProfiler = (fn, self) => function() {
+        let ext = fn.apply(gl, arguments);
+        ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
+          .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext) });
+        return ext;
+      };
+      gl.getExtension = extProfiler(gl.getExtension, this);
+    }
+
     // init ui and ui loggers
     if (!this.withoutUI) {
-      this.dom = document.getElementById('gl-bench');
-      if (!this.dom) {
-        document.body.insertAdjacentHTML('afterbegin', '<div id="gl-bench"></div>');
-        document.body.insertAdjacentHTML('afterbegin', '<style id="gl-bench-style">' + this.css + '</style>');
-        this.dom = document.getElementById('gl-bench');
-      }
+      if (!this.dom) this.dom = document.body;
+      let elm = document.createElement('div');
+      elm.id = 'gl-bench';
+      this.dom.appendChild(elm);
+      this.dom.insertAdjacentHTML('afterbegin', '<style id="gl-bench-style">' + this.css + '</style>');
+      this.dom = elm;
       this.dom.addEventListener('click', () => {
         this.trackGPU = !this.trackGPU;
         setTimeout(() => { this.updateUI()}, 500);
@@ -87,35 +116,6 @@ export default class GLBench {
         }
       })(this.chartLogger, this.dom);
     }
-
-    // attach gpu profilers
-    if (gl) {
-      const addProfiler = (fn, self, target) => function() {
-        const t = self.now();
-        fn.apply(target, arguments);
-        if (self.trackGPU) {
-          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
-          const dt = self.now() - t;
-          self.activeAccums.forEach((active, i) => {
-            if (active) {
-              self.gpuAccums[i] += dt;
-              self.cpuAccums[i] -= dt;
-            }
-          });
-        }
-      };
-      ['drawArrays', 'drawElements', 'drawArraysInstanced',
-        'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
-        .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this, gl) });
-
-      const extProfiler = (fn, self) => function() {
-        let ext = fn.apply(gl, arguments);
-        ['drawElementsInstancedANGLE', 'DRAW_BUFFER0_WEBGL']
-          .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext) });
-        return ext;
-      };
-      gl.getExtension = extProfiler(gl.getExtension, this);
-    }
   }
 
   /**
@@ -129,6 +129,9 @@ export default class GLBench {
         this.dom.insertAdjacentHTML('beforeend', this.svg);
         this.updateUI();
       }
+      this.cpuAccums.push(0);
+      this.gpuAccums.push(0);
+      this.activeAccums.push(false);
     }
   }
 
@@ -140,12 +143,11 @@ export default class GLBench {
     this.frameId++;
     const t = now ? now : this.now();
 
+    // params
     if (this.frameId <= 1) {
       this.paramFrame = this.frameId;
       this.paramTime = t;
-      this.circularId = 0;
     } else {
-      // params
       let duration = t - this.paramTime;
       if (duration >= 1e3) {
         const frameCount = this.frameId - this.paramFrame;
@@ -161,25 +163,26 @@ export default class GLBench {
         this.paramFrame = this.frameId;
         this.paramTime = t;
       }
+    }
 
-      // chart
+    // chart
+    if (!this.detected) {
+      this.chartFrame = this.frameId;
+      this.chartTime = t;
+      this.circularId = 0;
+    } else {
       let timespan = t - this.chartTime;
       let hz = this.chartHz * timespan / 1e3;
-      if (!this.detected) {
+      while (--hz > 0 && this.detected) {
+        const frameCount = this.frameId - this.chartFrame;
+        const fps = frameCount / timespan * 1e3;
+        this.chart[this.circularId % this.chartLen] = fps;
+        for (let i = 0; i < this.names.length; i++) {
+          this.chartLogger(i, this.chart, this.circularId);
+        }
+        this.circularId++;
         this.chartFrame = this.frameId;
         this.chartTime = t;
-      } else {
-        while (--hz > 0 && this.detected) {
-          const frameCount = this.frameId - this.chartFrame;
-          const fps = frameCount / timespan * 1e3;
-          this.chart[this.circularId % this.chartLen] = fps;
-          for (let i = 0; i < this.names.length; i++) {
-            this.chartLogger(i, this.chart, this.circularId);
-          }
-          this.circularId++;
-          this.chartFrame = this.frameId;
-          this.chartTime = t;
-        }
       }
     }
   }
@@ -205,9 +208,6 @@ export default class GLBench {
     if (nameId == -1) {
       nameId = this.names.length;
       this.addUI(name);
-      this.cpuAccums.push(0);
-      this.gpuAccums.push(0);
-      this.activeAccums.push(false);
     }
 
     const t = this.now();

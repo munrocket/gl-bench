@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>E2E Testing</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <style>
+    body { margin: 0; background-color: black; position: relative; }
+    canvas { display: block; position: absolute; }
+    h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
+    .star { position: fixed; bottom: 0; right: 0; transform: scale(0.8) }
+  </style>
+</head>
+<body>
+  <div id="wrapper" style="position: absolute;">
+  </div>
+  <h1 style="z-index: 10; text-shadow: 2px 1px 0px black;">Stress testing (256 full entities)</h1>
+  <canvas id="c"></canvas>
+  <div class="star">
+    <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="../examples/js/maingui.js"></script>
+  <script src="../dist/gl-bench.js"></script>
+  <script src="../examples/themes/behance.js"></script>
+  <script>
+    let wrapper = document.getElementById('wrapper');
+    let B = [];
+    for (let i = 0; i < 256; i++) {
+      let node = document.createElement('div');
+      node.id = '#'+i;
+      node.style = 'height: 70px; width: 95px; display: inline-block;';
+      wrapper.appendChild(node);
+      let bench = new GLBench(0, { dom: node });
+      bench.dom.style.position = 'relative';
+      bench.dom.style.zIndex = '0';
+      B.push(bench);
+    }
+    B.forEach((b, i) => b.addUI('#'+i));
+    function loop(now) { 
+      B[0].begin('#0') 
+      for (let i = 1; i < B.length; i++) {
+        B[i].begin('#'+i);
+        B[i].end('#'+i);
+        B[i].nextFrame(now);
+      }
+      B[0].end('#0')
+      B[0].nextFrame(now);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
