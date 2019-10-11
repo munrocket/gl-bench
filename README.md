@@ -13,16 +13,17 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
-### Comparison table
-|                        Pros                                  |             Cons               |
-|--------------------------------------------------------------|--------------------------------|
-| GPU percentage load                                          | Shipped only with ES6 classes  |
-| Cool themes and loggers                                      | Size not so tiny               |
-| It is faster than Stats.js even if chart is updated at 20 hz |                                |
-| Chart show significant performance drop or inactive page     |                                |
-| Two and more measuring in one loop                           |                                |
-| Web workers support                                          |                                |
-| Support for devices with 120+ FPS                            |                                |
+### Pros and cons
+|                        Pros                                      |             Cons               |
+|------------------------------------------------------------------|--------------------------------|
+| CPU/GPU percentage load                                          | Shipped only with ES6 classes  |
+| Cool themes and loggers                                          | Size not so tiny               |
+| Chart show inactive page or significant performance drop         |                                |
+| Two and more measuring in one loop                               |                                |
+| Support for devices with 120+ FPS                                |                                |
+| Web workers support                                              |                                |
+| Typescript support                                               |                                |
+| It is 2x faster than Stats.js in Chrome accorging to stress test |                                |
 
 ### Usage
 Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
@@ -80,3 +81,5 @@ requestAnimationFrame(draw);
 ### Contributing
 Fork this repository and install the dependencies, after that you can start dev server with `npm run dev`
 and open examples in browser `localhost:1234`.
+
+[//]: # (delete array clone, get rid of self)

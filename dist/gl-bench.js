@@ -53,31 +53,32 @@
 
       // attach gpu profilers
       if (gl) {
+        const glFinish = async (t, activeAccums) => {
+          setTimeout(() => {
+            gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+            const dt = this.now() - t;
+            activeAccums.forEach((active, i) => {
+              if (active) this.gpuAccums[i] += dt;
+            });
+          }, 0);
+        };
+
         const addProfiler = (fn, self, target) => function() {
           const t = self.now();
           fn.apply(target, arguments);
-          if (self.trackGPU) {
-            gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
-            const dt = self.now() - t;
-            self.activeAccums.forEach((active, i) => {
-              if (active) {
-                self.gpuAccums[i] += dt;
-                self.cpuAccums[i] -= dt;
-              }
-            });
-          }
+          if (self.trackGPU) glFinish(t, self.activeAccums.slice(0));
         };
+
         ['drawArrays', 'drawElements', 'drawArraysInstanced',
           'drawBuffers', 'drawElementsInstanced', 'drawRangeElements']
           .forEach(fn => { if (gl[fn]) gl[fn] = addProfiler(gl[fn], this, gl); });
 
-        const extProfiler = (fn, self) => function() {
+        gl.getExtension = ((fn, self) => function() {
           let ext = fn.apply(gl, arguments);
           ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
             .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext); });
           return ext;
-        };
-        gl.getExtension = extProfiler(gl.getExtension, this);
+        })(gl.getExtension, this);
       }
 
       // init ui and ui loggers
