@@ -48,7 +48,8 @@ export default class GLBench {
     if (gl) {
       const glFinish = async (t, activeAccums) => {
         setTimeout(() => {
-          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+          gl.getError();
+          gl.getParameter(gl.COLOR_WRITEMASK);
           const dt = this.now() - t;
           activeAccums.forEach((active, i) => {
             if (active) this.gpuAccums[i] += dt;
