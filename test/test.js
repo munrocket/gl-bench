@@ -1,24 +1,24 @@
 import GLBench from '../dist/gl-bench.module.js';
 import { test } from 'https://cdn.jsdelivr.net/npm/zora@3.0.3/dist/bundle/module.js';
 
-// test('CPU', async (t) => {
-//   let tfps = null, tcpu = null;
-//   const bench = new GLBench(null, {
-//     withoutUI: true,
-//     paramLogger: (i, cpu, gpu, mem, fps) => {
-//       tfps = fps;
-//       tcpu = cpu;
-//     }
-//   });
-//   for(let frameId = 0; frameId < 2; frameId++) {
-//     bench.nextFrame(performance.now());
-//     bench.begin();
-//     await new Promise(resolve => setTimeout(resolve, 200));
-//     bench.end();
-//   }
-//   t.ok(tfps != null, 'fps = ' + (tfps != null ? tfps.toFixed(1) : 'null'));
-//   t.ok(tfps != null, 'cpu = ' + (tcpu != null ? tcpu.toFixed(1) : 'null'));
-// });
+test('CPU', async (t) => {
+  let tfps = null, tcpu = null;
+  const bench = new GLBench(null, {
+    withoutUI: true,
+    paramLogger: (i, cpu, gpu, mem, fps) => {
+      tfps = fps;
+      tcpu = cpu;
+    }
+  });
+  for(let frameId = 0; frameId < 7; frameId++) {
+    bench.nextFrame();
+    bench.begin();
+    await new Promise(resolve => setTimeout(resolve, 200));
+    bench.end();
+  }
+  t.ok(tfps != null, 'fps = ' + (tfps != null ? tfps.toFixed(1) : 'null'));
+  t.ok(tfps != null, 'cpu = ' + (tcpu != null ? tcpu.toFixed(1) : 'null'));
+});
 
 test('Memory', async (t) => {
   let tmem = null;
@@ -29,7 +29,7 @@ test('Memory', async (t) => {
     }
   });
   for(let frameId = 0; frameId < 7; frameId++) {
-    bench.nextFrame(performance.now());
+    bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
     bench.end();
@@ -42,6 +42,7 @@ test('WebGL1', async (t) => {
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   const bench = new GLBench(context, {
+    trackGPU: true,
     withoutUI: true,
     paramLogger: (i, cpu, gpu, mem, fps) => {
       tfps = fps;
@@ -50,7 +51,7 @@ test('WebGL1', async (t) => {
     }
   });
   for(let frameId = 0; frameId < 7; frameId++) {
-    bench.nextFrame(performance.now());
+    bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
     bench.end();
@@ -65,6 +66,7 @@ test('WebGL2', async (t) => {
   const canvas = document.querySelectorAll('canvas')[1];
   const context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   const bench = new GLBench(context, {
+    trackGPU: true,
     withoutUI: true,
     paramLogger: (i, cpu, gpu, mem, fps) => {
       tfps = fps;
@@ -73,7 +75,7 @@ test('WebGL2', async (t) => {
     }
   });
   for(let frameId = 0; frameId < 7; frameId++) {
-    bench.nextFrame(performance.now());
+    bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
     bench.end();
@@ -88,6 +90,7 @@ test('UI', async (t) => {
   const canvas = document.querySelectorAll('canvas')[2];
   const context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   const bench = new GLBench(context, {
+    trackGPU: true,
     paramLogger: (i, cpu, gpu, mem, fps) => {
       tfps = fps;
       tcpu = cpu;
@@ -96,7 +99,7 @@ test('UI', async (t) => {
     }
   });
   for(let frameId = 0; frameId < 7; frameId++) {
-    bench.nextFrame(performance.now());
+    bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
     bench.end();

@@ -11,6 +11,7 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
 - [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
 - [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
+- [float-textures](https://munrocket.github.io/gl-bench/examples/float-textures.html)
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Pros and cons
