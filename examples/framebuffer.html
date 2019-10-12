@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - framebuffer - texture</title>
+		<title>E2E Testing - With ramebuffer</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -14,7 +14,7 @@
 	</head>
 	<body>
 
-		<h1>Framebuffer</h1>
+		<h1>With ramebuffer</h1>
     <canvas id="c"></canvas>
     <div class="star">
       <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
@@ -77,7 +77,7 @@
 				//
 				var overlay = document.getElementById( 'overlay' );
         //
-        bench = new GLBench(renderer.getContext());
+        bench = new GLBench(renderer.getContext(), { trackGPU: true });
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
 			}

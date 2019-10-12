@@ -57,11 +57,7 @@
       if (gl) {
         const glFinish = async (t, activeAccums) =>
           Promise.resolve(setTimeout(() => {
-            if (this.isFramebuffer) {
-              gl.finish();
-            } else {
-              gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
-            }
+            gl.getError();
             const dt = this.now() - t;
             activeAccums.forEach((active, i) => {
               if (active) this.gpuAccums[i] += dt;
@@ -71,9 +67,7 @@
         const addProfiler = (fn, self, target) => function() {
           const t = self.now();
           fn.apply(target, arguments);
-          if (self.trackGPU) {
-            self.finished.push(glFinish(t, self.activeAccums.slice(0)));
-          }
+          if (self.trackGPU) self.finished.push(glFinish(t, self.activeAccums.slice(0)));
         };
 
         ['drawArrays', 'drawElements', 'drawArraysInstanced',
@@ -86,11 +80,6 @@
             .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext); });
           return ext;
         })(gl.getExtension, this);
-
-        gl.bindFramebuffer = ((fn, target, self) => function() {
-          fn.apply(target, arguments);
-          self.isFramebuffer = !arguments[1];
-        })(gl.bindFramebuffer, gl, this);
       }
 
       // init ui and ui loggers

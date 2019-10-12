@@ -15,16 +15,19 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Pros and cons
-|                        Pros                                      |             Cons               |
-|------------------------------------------------------------------|--------------------------------|
-| CPU/GPU percentage load                                          | Shipped only with ES6 classes  |
-| Cool themes and loggers                                          | Size not so tiny               |
-| Chart show inactive page or significant performance drop         |                                |
-| Two and more measuring in one loop                               |                                |
-| Support for devices with 120+ FPS                                |                                |
-| Web workers support                                              |                                |
-| Typescript support                                               |                                |
-| It is 2x faster than Stats.js in Chrome accorging to stress test |                                |
+|                        Pros                                      |             Cons                         |
+|------------------------------------------------------------------|------------------------------------------|
+| CPU/GPU percentage load                                          | Shipped only with ES6 classes            |
+| Cool themes and loggers                                          | Size not so tiny                         |
+| Chart show inactive page or significant performance drop         | Not tested properly                      |
+| Two and more measuring in one loop                               |                                          |
+| Support for devices with 120+ FPS                                |                                          |
+| Web workers support                                              |                                          |
+| Typescript support                                               |                                          | 
+| It is 2x faster than Stats.js in Chrome accorging to stress test |                                          |
+
+### How it works
+For GPU/CPU synchronization I am use gl.getError(), it is better than gl.readPixels() at least for me. Code is asynchronous and not stall rendering pipeline by hitting CPU limit due to waiting GPU answer, so you can calculate your heavy physics on CPU with this monitor. If you want turn off GPU tracking just press on it with one click. Check online examples/e2e tests to find out how it works. Version 1 used the EXT_disjoint_timer_query extension, but it [not supported](https://caniuse.com/#search=disjoint_timer_query) on some pc anymore.
 
 ### Usage
 Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
@@ -83,4 +86,4 @@ requestAnimationFrame(draw);
 Fork this repository and install the dependencies, after that you can start dev server with `npm run dev`
 and open examples in browser `localhost:1234`.
 
-[//]: # (delete array clone, get rid of self)
+[//]: # (posible optimizations: delete array clone, get rid of self)

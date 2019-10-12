@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>three.js webgl - instancing</title>
+  <title>E2E Testing - Instanced arrays</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -51,7 +51,7 @@
       // GLBench initialization with passing existed context in Engine;
       var canvas = document.getElementById('c');
       var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      bench = new GLBench(context, { css:CSS, svg:SVG });
+      bench = new GLBench(context, { css:CSS, svg:SVG, trackGPU: true });
       
       renderer = new THREE.WebGLRenderer( { antialias: true, canvas: canvas, context: context } );
       renderer.setPixelRatio( window.devicePixelRatio );
