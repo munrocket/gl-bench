@@ -1,5 +1,6 @@
 import UISVG from './ui.svg';
 import UICSS from './ui.css';
+import { NONAME } from 'dns';
 
 export default class GLBench {
 
@@ -30,6 +31,7 @@ export default class GLBench {
     Object.assign(this, settings);
     this.detected = 0;
     this.finished = [];
+    this.isFramebuffer = 0;
     this.frameId = 0;
 
     // 120hz device detection
@@ -49,7 +51,11 @@ export default class GLBench {
     if (gl) {
       const glFinish = async (t, activeAccums) =>
         Promise.resolve(setTimeout(() => {
-          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+          if (this.isFramebuffer) {
+            gl.finish();
+          } else {
+            gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+          }
           const dt = this.now() - t;
           activeAccums.forEach((active, i) => {
             if (active) this.gpuAccums[i] += dt;
@@ -74,6 +80,11 @@ export default class GLBench {
           .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext) });
         return ext;
       })(gl.getExtension, this);
+
+      gl.bindFramebuffer = ((fn, target, self) => function() {
+        fn.apply(target, arguments);
+        self.isFramebuffer = !arguments[1];
+      })(gl.bindFramebuffer, gl, this);
     }
 
     // init ui and ui loggers
