@@ -29,6 +29,7 @@ export default class GLBench {
 
     Object.assign(this, settings);
     this.detected = 0;
+    this.finished = [];
     this.frameId = 0;
 
     // 120hz device detection
@@ -46,21 +47,21 @@ export default class GLBench {
 
     // attach gpu profilers
     if (gl) {
-      const glFinish = async (t, activeAccums) => {
-        setTimeout(() => {
-          gl.getError();
-          gl.getParameter(gl.COLOR_WRITEMASK);
+      const glFinish = async (t, activeAccums) =>
+        Promise.resolve(setTimeout(() => {
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
           const dt = this.now() - t;
           activeAccums.forEach((active, i) => {
             if (active) this.gpuAccums[i] += dt;
           });
-        }, 0);
-      };
+        }, 0));
 
       const addProfiler = (fn, self, target) => function() {
         const t = self.now();
         fn.apply(target, arguments);
-        if (self.trackGPU) glFinish(t, self.activeAccums.slice(0));
+        if (self.trackGPU) {
+          self.finished.push(glFinish(t, self.activeAccums.slice(0)));
+        }
       };
 
       ['drawArrays', 'drawElements', 'drawArraysInstanced',
@@ -85,7 +86,7 @@ export default class GLBench {
       this.dom = elm;
       this.dom.addEventListener('click', () => {
         this.trackGPU = !this.trackGPU;
-        setTimeout(() => { this.updateUI()}, 500);
+        this.updateUI();
       });
 
       this.paramLogger = ((logger, dom, names) => {
@@ -161,7 +162,10 @@ export default class GLBench {
             mem = (performance && performance.memory) ? performance.memory.usedJSHeapSize / (1 << 20) : 0;
           this.paramLogger(i, cpu, gpu, mem, fps, duration, frameCount);
           this.cpuAccums[i] = 0;
-          this.gpuAccums[i] = 0;
+          Promise.all(this.finished).then(() => {
+            this.gpuAccums[i] = 0;
+            this.finished = [];
+          });
         }
         this.paramFrame = this.frameId;
         this.paramTime = t;
