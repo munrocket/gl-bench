@@ -39,7 +39,7 @@ function draw(now) {
   // monitored code
   bench.end();
 
-  bench.newFrame(now);
+  bench.nextFrame(now);
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
@@ -76,7 +76,7 @@ function draw(now) {
   // some bottleneck
   bench.end('such laggy');
 
-  bench.newFrame(now);
+  bench.nextFrame(now);
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);

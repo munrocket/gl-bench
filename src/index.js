@@ -1,6 +1,5 @@
 import UISVG from './ui.svg';
 import UICSS from './ui.css';
-import { NONAME } from 'dns';
 
 export default class GLBench {
 
