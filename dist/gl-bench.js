@@ -179,7 +179,7 @@
       }
 
       // chart
-      if (!this.detected) {
+      if (!this.detected || !this.chartFrame) {
         this.chartFrame = this.frameId;
         this.chartTime = t;
         this.circularId = 0;
