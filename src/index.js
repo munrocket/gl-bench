@@ -69,8 +69,10 @@ export default class GLBench {
 
       gl.getExtension = ((fn, self) => function() {
         let ext = fn.apply(gl, arguments);
-        ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
-          .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext) });
+        if (ext) {
+          ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
+            .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext) });
+        }
         return ext;
       })(gl.getExtension, this);
     }
