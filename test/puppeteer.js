@@ -15,13 +15,13 @@ import pup2ist from 'puppeteer-to-istanbul';
   page.on('console', msg => {
     for (let i = 0; i < msg.args().length; ++i) {
       const str = msg.args()[i].toString().slice(9);
-      if (str[0] == '#') {
+      if (str.slice(0, 3) == 'TAP') {
         console.log('\x1b[34m');
       }
       console.log(str);
       if (str.trim() == '# ok') {
         console.log('\x1b[32m' + 'SUCCESS!');
-        process.exit(0);
+        setTimeout(() => process.exit(0), 100);
       } 
     }
   });
