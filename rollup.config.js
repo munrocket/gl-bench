@@ -17,7 +17,7 @@ export default [
     output: { file: pkg.browser, name: 'GLBench', format: 'iife' },
     plugins: [
       string({ include: ['**/*.svg', '**/*.css'] }),
-      modify({ find: /\s*\\n\s*|(?<=:)\s+|\s(?={)/g, replace: ''}),
+      modify({ find: /\\n+\s*/g, replace: ' '}),
       closure()
     ]
   }

@@ -10,14 +10,14 @@ test('CPU', async (t) => {
       tcpu = cpu;
     }
   });
-  for(let frameId = 0; frameId < 7; frameId++) {
+  for(let frameId = 0; frameId < 15; frameId++) {
     bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
     bench.end();
   }
   t.ok(tfps != null, 'fps = ' + (tfps != null ? tfps.toFixed(1) : 'null'));
-  t.ok(tfps != null, 'cpu = ' + (tcpu != null ? tcpu.toFixed(1) : 'null'));
+  t.ok(tcpu != null, 'cpu = ' + (tcpu != null ? tcpu.toFixed(1) : 'null'));
 });
 
 test('Memory', async (t) => {
@@ -28,7 +28,7 @@ test('Memory', async (t) => {
       tmem = mem;
     }
   });
-  for(let frameId = 0; frameId < 7; frameId++) {
+  for(let frameId = 0; frameId < 15; frameId++) {
     bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -50,7 +50,7 @@ test('WebGL1', async (t) => {
       tgpu = gpu;
     }
   });
-  for(let frameId = 0; frameId < 7; frameId++) {
+  for(let frameId = 0; frameId < 15; frameId++) {
     bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -74,7 +74,7 @@ test('WebGL2', async (t) => {
       tgpu = gpu;
     }
   });
-  for(let frameId = 0; frameId < 7; frameId++) {
+  for(let frameId = 0; frameId < 15; frameId++) {
     bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -98,7 +98,7 @@ test('UI', async (t) => {
       tmem = mem;
     }
   });
-  for(let frameId = 0; frameId < 7; frameId++) {
+  for(let frameId = 0; frameId < 15; frameId++) {
     bench.nextFrame();
     bench.begin();
     await new Promise(resolve => setTimeout(resolve, 200));

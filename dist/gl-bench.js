@@ -43,7 +43,7 @@
       // 120hz device detection
       let rafId, n = 0, t0;
       let loop = (t) => {
-        if (++n < 10) {
+        if (++n < 20) {
           rafId = requestAnimationFrame(loop);
         } else {
           this.detected = Math.ceil(1e3 * n / (t - t0) / 70);
@@ -76,8 +76,10 @@
 
         gl.getExtension = ((fn, self) => function() {
           let ext = fn.apply(gl, arguments);
-          ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
-            .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext); });
+          if (ext) {
+            ['drawElementsInstancedANGLE', 'drawBuffersWEBGL']
+              .forEach(fn => { if (ext[fn]) ext[fn] = addProfiler(ext[fn], self, ext); });
+          }
           return ext;
         })(gl.getExtension, this);
       }
@@ -179,7 +181,7 @@
       }
 
       // chart
-      if (!this.detected) {
+      if (!this.detected || !this.chartFrame) {
         this.chartFrame = this.frameId;
         this.chartTime = t;
         this.circularId = 0;

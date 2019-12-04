@@ -1,4 +1,4 @@
-# gl-bench [![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench) [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench)](https://circleci.com/gh/munrocket/gl-bench)
+# gl-bench [![Bundlephobia](https://badgen.net/bundlephobia/minzip/gl-bench)](https://bundlephobia.com/result?p=gl-bench) [![CircleCI](https://badgen.net/github/status/munrocket/gl-bench)](https://circleci.com/gh/munrocket/gl-bench) [![Codecov](https://img.shields.io/codecov/c/github/munrocket/gl-bench.svg)](https://codecov.io/gh/munrocket/gl-bench)
 
 WebGL performance monitor that showing percentage of GPU/CPU load.
 
@@ -10,7 +10,7 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 - [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
 - [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
 - [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
-- [instanced-arrays](https://munrocket.github.io/gl-bench/examples/web-workers.html)
+- [instanced-arrays](https://munrocket.github.io/gl-bench/examples/instanced-arrays.html)
 - [float-textures](https://munrocket.github.io/gl-bench/examples/float-textures.html)
 - [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
@@ -19,7 +19,7 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 |------------------------------------------------------------------|------------------------------------------|
 | CPU/GPU percentage load                                          | Shipped only with ES6 classes            |
 | Cool themes and loggers                                          | Size not so tiny                         |
-| Chart show inactive page or significant performance drop         | Not tested properly                      |
+| Chart show inactive page or significant performance drop         |                                          |
 | Two and more measuring in one loop                               |                                          |
 | Support for devices with 120+ FPS                                |                                          |
 | Web workers support                                              |                                          |

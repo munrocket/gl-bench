@@ -1,12 +1,12 @@
 language: node_js
-node_js: '12'
+node_js: node
 services: xvfb
 
 script:
-  - npm run ci || npm run cov
-  
+  - npm run ci
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run cov && npx codecov
 
 deploy:
   provider: npm
