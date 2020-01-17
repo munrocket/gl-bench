@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "0.3.35",
+  "version": "0.3.54",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
   "main": "./dist/gl-bench.js",
   "browser": "./dist/gl-bench.min.js",
@@ -12,20 +12,20 @@
     "test": "node --experimental-modules --no-warnings ./test/puppeteer.js",
     "http": "http-server -c-1 -p 1234",
     "cov": "sed -i 's/.nyc_output\\/js/dist/g' .nyc_output/out.json && nyc report --reporter=lcov",
-    "ci": "CI=true npm run http & npm run test && npm run cov || pkill http"
+    "ci": "CI=true npm run http & npm run test && npm run cov; pkill http"
   },
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "0.12.1",
+    "@ampproject/rollup-plugin-closure-compiler": "0.19.1",
     "codecov": "3.6.1",
-    "concurrently": "5.0.0",
-    "http-server": "0.11.1",
-    "nyc": "^14.1.1",
+    "concurrently": "5.0.2",
+    "http-server": "0.12.1",
+    "nyc": "^15.0.0",
     "puppeteer": "2.0.0",
     "puppeteer-to-istanbul": "1.2.2",
-    "rollup": "1.27.0",
+    "rollup": "1.29.0",
     "rollup-plugin-modify": "3.0.0",
     "rollup-plugin-string": "3.0.0",
-    "zora": "3.1.4"
+    "zora": "3.1.8"
   },
   "author": "munrocket",
   "license": "MIT",

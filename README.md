@@ -29,15 +29,37 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 ### How it works
 For GPU/CPU synchronization I am use gl.getError(), it is better than gl.readPixels() at least for me. Code is asynchronous and not stall rendering pipeline by hitting CPU limit due to waiting GPU answer, so you can calculate your heavy physics on CPU with this monitor. If you want turn off GPU tracking just press on it with one click. Check online examples/e2e tests to find out how it works. Version 1 used the EXT_disjoint_timer_query extension, but it [not supported](https://caniuse.com/#search=disjoint_timer_query) on some pc anymore.
 
-### Usage
+### Usage with Three.js
 Add script on page from [npm](https://www.npmjs.com/package/gl-bench) or [jsdelivr](https://cdn.jsdelivr.net/npm/gl-bench/dist/gl-bench.min.js)/[unpkg](https://unpkg.com/gl-bench/dist/gl-bench.min.js) and wrap monitored code with begin/end marks
 ```javascript
+import GLBench from 'gl-bench/dist/gl-bench';
 let bench = new GLBench(renderer.getContext());
 
 function draw(now) {
   bench.begin();
   // monitored code
   bench.end();
+  bench.nextFrame(now);
+}
+
+renderer.setAnimationLoop((now) => draw(now));
+```
+
+### Profiling with another WebGL frameworks
+```javascript
+let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+let bench = new GLBench(gl);
+
+// engine initialization with instanced_arrays/draw_buffers webgl1 extensions goes after!
+
+function draw(now) {
+  bench.begin('first measure');
+  // some bottleneck
+  bench.end('first measure');
+
+  bench.begin('second measure');
+  // some bottleneck
+  bench.end('second measure');
 
   bench.nextFrame(now);
   requestAnimationFrame(draw);
@@ -58,28 +80,6 @@ let bench = new GLBench(gl, {
   paramLogger: (i, cpu, gpu, mem, fps, totalTime, frameId) => { console.log(cpu, gpu) },
   chartLogger: (i, chart, circularId) => { console.log('chart circular buffer=', chart) },
 };
-```
-
-### Profiling
-```javascript
-let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-let bench = new GLBench(gl);
-
-// engine initialization with instanced_arrays/draw_buffers webgl1 extensions goes after!
-
-function draw(now) {
-  bench.begin('wow');
-  // some bottleneck
-  bench.end('wow');
-
-  bench.begin('such laggy');
-  // some bottleneck
-  bench.end('such laggy');
-
-  bench.nextFrame(now);
-  requestAnimationFrame(draw);
-}
-requestAnimationFrame(draw);
 ```
 
 ### Contributing
