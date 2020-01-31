@@ -3,18 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>E2E Testing - Named measuring</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-  <style>
-    body { margin: 0; background-color: black; position: relative; }
-    canvas { display: block; position: absolute; }
-    h1 { position: absolute; color: white; top: 50%; left: 50%; transform: translate(-50%, 0%); }
-    .star { position: fixed; bottom: 0; right: 0; transform: scale(0.8) }
-  </style>
+  <link rel="stylesheet" type="text/css" href="./common/style.css">
 </head>
 <body>
+
   <h1>Named measuring</h1>
+  <p>Lorenz Attractor by @DonKarlssonSan</p>
   <canvas id="c"></canvas>
   <div class="star">
     <iframe src="https://ghbtns.com/github-btn.html?user=munrocket&repo=gl-bench&type=star&count=true&size=large" frameborder="0" scrolling="0" width="130px" height="30px"></iframe>
@@ -22,9 +18,10 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
-  <script src="./js/maingui.js"></script>
+  <script src="./common/maingui.js"></script>
   <script src="../dist/gl-bench.js"></script>
   <script src="./themes/oscilloscope.js"></script>
+  
   <script>
     let bench;
     let scene;

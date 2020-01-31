@@ -1,15 +1,17 @@
 {
   "name": "gl-bench",
-  "version": "0.3.58",
+  "version": "0.3.60",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
   "main": "./dist/gl-bench.js",
   "browser": "./dist/gl-bench.min.js",
   "module": "./dist/gl-bench.module.js",
-  "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c",
-    "dev": "npm run build && concurrently \"rollup -c -w\" \"npm:http\"",
-    "test": "node --experimental-modules --no-warnings ./test/puppeteer.js",
+    "dev": "npm run build && concurrently \"rollup -cw\" \"npm:http\"",
+    "test": "node -r esm ./test/puppeteer.js",
     "http": "http-server -c-1 -p 1234",
     "cov": "sed -i 's/.nyc_output\\/js/dist/g' .nyc_output/out.json && nyc report --reporter=lcov",
     "ci": "CI=true npm run http & npm run test && npm run cov; pkill http"
@@ -18,6 +20,7 @@
     "@ampproject/rollup-plugin-closure-compiler": "0.20.0",
     "codecov": "3.6.2",
     "concurrently": "5.0.2",
+    "esm": "^3.2.25",
     "http-server": "0.12.1",
     "nyc": "^15.0.0",
     "puppeteer": "2.0.0",

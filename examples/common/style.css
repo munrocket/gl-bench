@@ -1,0 +1,41 @@
+body {
+  margin: 0;
+  background-color: black;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  z-index: -1;
+}
+
+h1 {
+  position: absolute;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  z-index: 10;
+}
+
+p {
+  position: absolute;
+  margin-top: 65px;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  z-index: 10;
+}
+
+#report {
+  position: absolute;
+}
+
+.star {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  transform: scale(0.8);
+}
