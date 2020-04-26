@@ -17,7 +17,7 @@
     "ci": "CI=true npm run http & npm run test && npm run cov; pkill http"
   },
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "0.24.0",
+    "@ampproject/rollup-plugin-closure-compiler": "0.25.2",
     "codecov": "3.6.5",
     "concurrently": "5.1.0",
     "esm": "^3.2.25",
