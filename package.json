@@ -19,7 +19,7 @@
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.25.2",
     "codecov": "3.6.5",
-    "concurrently": "5.1.0",
+    "concurrently": "5.2.0",
     "esm": "^3.2.25",
     "http-server": "0.12.1",
     "nyc": "^15.0.0",
