@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "0.3.87",
+  "version": "0.3.88",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
   "main": "./dist/gl-bench.js",
   "browser": "./dist/gl-bench.min.js",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.25.2",
-    "codecov": "3.6.5",
+    "codecov": "3.7.0",
     "concurrently": "5.2.0",
     "esm": "^3.2.25",
     "http-server": "0.12.3",
