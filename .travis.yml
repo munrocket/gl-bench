@@ -1,17 +1,23 @@
+ 
 language: node_js
-node_js: 10
-services: xvfb
+node_js: node
 
-before_script:
-  - npm run build
+jobs:
+  include:
+    - name: test
+      before_script: npm run build
+      script: npm run ci
+      after_success: npx codecov
 
-script:
-  - npm run ci
+    - name: publish
+      script: npm run build
+      deploy:
+        provider: npm
+        edge: true
+        email: $NPM_EMAIL
+        api_key: $NPM_TOKEN
+        on:
+          branch: master
 
-deploy:
-  provider: npm
-  edge: true
-  email: $NPM_EMAIL
-  api_key: $NPM_TOKEN
-  on:
-    branch: master
+  allow_failures:
+    - name: publish
