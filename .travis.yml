@@ -1,14 +1,12 @@
  
 language: node_js
 services: xvfb
-node_js: node
+node_js: 10
 
 jobs:
   include:
     - name: test
-      before_script: npm run build
-      script: npm run ci
-      after_success: npx codecov
+      script: npm run build && npm run ci
 
     - name: publish
       script: npm run build
