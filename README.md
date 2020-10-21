@@ -45,6 +45,9 @@ function draw(now) {
 renderer.setAnimationLoop((now) => draw(now));
 ```
 
+### Using TypeScript
+Replace ``import GLBench from 'gl-bench/dist/gl-bench';`` into ``import GLBench from 'gl-bench/dist/gl-bench.module';``
+
 ### Profiling with another WebGL frameworks
 ```javascript
 let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
