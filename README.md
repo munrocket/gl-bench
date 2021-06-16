@@ -6,13 +6,13 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 ![](https://habrastorage.org/webt/vb/ys/pz/vbyspz0emcxkslj0c-u0toxbom0.png)
 
 ### Examples / e2e tests
-- [webgl](https://munsocket.github.io/gl-bench/examples/webgl.html)
-- [webgl2](https://munsocket.github.io/gl-bench/examples/webgl2.html)
-- [new-loggers](https://munsocket.github.io/gl-bench/examples/new-loggers.html)
-- [named-measuring](https://munsocket.github.io/gl-bench/examples/named-measuring.html)
-- [instanced-arrays](https://munsocket.github.io/gl-bench/examples/instanced-arrays.html)
-- [float-textures](https://munsocket.github.io/gl-bench/examples/float-textures.html)
-- [web-workers](https://munsocket.github.io/gl-bench/examples/web-workers.html)
+- [webgl](https://munrocket.github.io/gl-bench/examples/webgl.html)
+- [webgl2](https://munrocket.github.io/gl-bench/examples/webgl2.html)
+- [new-loggers](https://munrocket.github.io/gl-bench/examples/new-loggers.html)
+- [named-measuring](https://munrocket.github.io/gl-bench/examples/named-measuring.html)
+- [instanced-arrays](https://munrocket.github.io/gl-bench/examples/instanced-arrays.html)
+- [float-textures](https://munrocket.github.io/gl-bench/examples/float-textures.html)
+- [web-workers](https://munrocket.github.io/gl-bench/examples/web-workers.html)
 
 ### Pros and cons
 |                        Pros                                      |             Cons                         |
