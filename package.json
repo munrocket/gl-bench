@@ -12,7 +12,7 @@
     "build": "rollup -c",
     "dev": "npm run build && concurrently \"rollup -cw\" \"npm:http\"",
     "test": "node -r esm ./test/puppeteer.js",
-    "http": "http-server -c-1 -p 1234",
+    "http": "servez -p 1234",
     "cov": "sed -i 's/.nyc_output\\/js/dist/g' .nyc_output/out.json && nyc report --reporter=lcov",
     "ci": "CI=true npm run http & npm run test && npm run cov; pkill http"
   },
@@ -21,7 +21,7 @@
     "codecov": "3.8.3",
     "concurrently": "6.2.0",
     "esm": "^3.2.25",
-    "http-server": "0.12.3",
+    "servez": "^1.12.0"
     "nyc": "^15.0.0",
     "puppeteer": "10.2.0",
     "puppeteer-to-istanbul": "1.4.0",
