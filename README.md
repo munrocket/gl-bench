@@ -19,7 +19,7 @@ WebGL performance monitor that showing percentage of GPU/CPU load.
 |------------------------------------------------------------------|------------------------------------------|
 | CPU/GPU percentage load                                          | Shipped only with ES6 classes            |
 | Cool themes and loggers                                          | Size not so tiny                         |
-| Chart show inactive page or significant performance drop         |                                          |
+| Chart show inactive page or significant performance drop         | Not too easy to add on a page            |
 | Two and more measuring in one loop                               |                                          |
 | Support for devices with 120+ FPS                                |                                          |
 | Web workers support                                              |                                          |
