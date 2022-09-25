@@ -1,6 +1,6 @@
 {
   "name": "gl-bench",
-  "version": "1.0.44",
+  "version": "1.0.45",
   "description": "WebGL performance monitor that showing percentage of GPU/CPU load",
   "main": "./dist/gl-bench.js",
   "browser": "./dist/gl-bench.min.js",
@@ -28,7 +28,7 @@
     "rollup": "2.51.2",
     "rollup-plugin-modify": "3.0.0",
     "rollup-plugin-string": "3.0.0",
-    "zora": "5.0.4"
+    "zora": "5.1.0"
   },
   "author": "munrocket",
   "license": "MIT",
