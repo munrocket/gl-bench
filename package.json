@@ -25,7 +25,7 @@
     "nyc": "^15.0.0",
     "puppeteer": "13.7.0",
     "puppeteer-to-istanbul": "1.4.0",
-    "rollup": "2.51.2",
+    "rollup": "2.79.1",
     "rollup-plugin-modify": "3.0.0",
     "rollup-plugin-string": "3.0.0",
     "zora": "5.0.4"
